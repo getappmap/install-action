@@ -1,0 +1,19 @@
+name: Install and configure AppMap
+description:
+  Installs AppMap tools and the AppMap language library, and configures AppMap options for the
+  project.
+inputs:
+  appmap-config:
+    description: appmap.yml configuration contents.
+    required: false
+  tools-url:
+    description: URL to the AppMap tools.
+    required: false
+    default: https://github.com/getappmap/appmap-js/releases/download/%40appland%2Fappmap-preflight-v1.0-pre.1/appmap-preflight-linux-x64
+  verbose:
+    description: Enable verbose logging.
+    required: false
+    default: false
+runs:
+  using: 'node16'
+  main: 'lib/index.js'
