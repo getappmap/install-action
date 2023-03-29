@@ -1,6 +1,11 @@
+# You know why
 node_modules
-
 yarn-debug.log*
 yarn-error.log*
 
+# Temporary build output
 build
+
+# Files created when testing this action on itself.
+appmap.yml
+patch
