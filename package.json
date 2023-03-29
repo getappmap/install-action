@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "author": "AppLand, Inc",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist",
-    "format": "prettier --write '**/*.ts'"
+    "clean": "rm -rf build dist",
+    "format": "prettier --write '**/*.ts'",
+    "package": "ncc build --source-map --license licenses.txt"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
+    "@vercel/ncc": "^0.36.1",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2"
