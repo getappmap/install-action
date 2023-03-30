@@ -88,6 +88,8 @@ function downloadFile(url, path) {
             throw new Error(`Could not download ${url}`);
         if (!res.body)
             throw new Error(`Response body for ${url} is empty`);
+        if (res.status !== 200)
+            throw new Error(`Could not download ${url}: ${res.statusText}`);
         const fileStream = (0, fs_1.createWriteStream)(path);
         yield new Promise((resolve, reject) => {
             (0, assert_1.default)(res.body);
