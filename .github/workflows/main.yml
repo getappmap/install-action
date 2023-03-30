@@ -11,14 +11,12 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
-      - name: Install AppMap tools
-        uses: ./
-        id: install-appmap
       - name: Test
         run: yarn test
       - name: Build GitHub action
         run: yarn package
       - name: Create AppMaps archive
+        # AppMap tools are installed to /tmp/appmap by the smoke test
         run: /tmp/appmap archive
       - name: Store AppMaps archive as an artifact
         uses: actions/upload-artifact@v2
@@ -31,4 +29,5 @@ jobs:
           name: getappmap/install-action
           path: dist
       - name: Commit changes
+        # If you forgot to package the distribution, you'll see a commit added to your PR
         uses: EndBug/add-and-commit@v7
