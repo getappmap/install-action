@@ -30,3 +30,5 @@ jobs:
         with:
           name: getappmap/install-action
           path: dist
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v7
