@@ -3,17 +3,29 @@ on: [push]
 jobs:
   install_appmap_job:
     runs-on: ubuntu-latest
-    name: Install AppMap
+    name: Build, test and package
     steps:
       - name: Checkout step
         uses: actions/checkout@v3
+      - name: Install dependencies
+        run: yarn install
       - name: Build
         run: yarn build
+      - name: Install AppMap tools
+        uses: ./
+        id: install-appmap
       - name: Test
         run: yarn test
-      - name: Package
+      - name: Build GitHub action
         run: yarn package
-      - name: Store build artifact
+      - name: Create AppMaps archive
+        run: /tmp/appmap archive
+      - name: Store AppMaps archive as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: appmaps.tar
+          path: .appmap
+      - name: Store action as an artifact
         uses: actions/upload-artifact@v2
         with:
           name: getappmap/install-action
