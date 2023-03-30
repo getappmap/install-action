@@ -1,4 +1,5 @@
 name: install-appmap-action
+ordering: chronological
 packages:
   - path: src
 language: javascript
