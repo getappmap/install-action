@@ -7,6 +7,8 @@ jobs:
     steps:
       - name: Checkout step
         uses: actions/checkout@v3
+      - name: Save current revision
+        run: git_revision=$(git rev-parse HEAD)
       - name: Install dependencies
         run: yarn install
       - name: Build
@@ -18,6 +20,15 @@ jobs:
       - name: Create AppMaps archive
         # AppMap tools are installed to /tmp/appmap by the smoke test
         run: /tmp/appmap archive
+      - name: Checkout appmap-archive branch
+        run: git checkout appmap-archive
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          add: .appmap
+          push: true
+      - name: Checkout appmap-archive branch
+        run: git checkout $git_revision
       - name: Store AppMaps archive as an artifact
         uses: actions/upload-artifact@v2
         with:
