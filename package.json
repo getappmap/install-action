@@ -6,7 +6,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "appmap-agent-js -- jest",
     "clean": "rm -rf build dist tmp",
     "format": "prettier --write '**/*.ts'",
     "package": "ncc build --source-map --license licenses.txt"
