@@ -6,6 +6,7 @@ export async function downloadFile(url: URL, path: string) {
   const res = await fetch(url);
   if (!res) throw new Error(`Could not download ${url}`);
   if (!res.body) throw new Error(`Response body for ${url} is empty`);
+  if (res.status !== 200) throw new Error(`Could not download ${url}: ${res.statusText}`);
 
   const fileStream = createWriteStream(path);
   await new Promise((resolve, reject) => {

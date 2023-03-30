@@ -33,7 +33,11 @@ async function uploadPatchFile(path: string) {
   await upload.uploadArtifact('patch', [path], '.');
 }
 
-function runInGitHub(): Installer {
+export interface InstallerResults {
+  patchFile: string;
+}
+
+export async function runInGitHub(): Promise<InstallerResults> {
   core.debug(`Env var 'CI' is set. Running as a GitHub action.`);
   verbose(core.getBooleanInput('verbose'));
   const appmapConfig = core.getInput('appmap-config');
@@ -43,32 +47,20 @@ function runInGitHub(): Installer {
 
   uploadArtifact = uploadPatchFile;
 
-  return installer;
+  return install(installer);
 }
 
-function runAsScript(appmapToolsURL: string): Installer {
+export async function runAsScript(appmapToolsURL: string): Promise<InstallerResults> {
   console.log(`Env var 'CI' is not set. Running as a local script.`);
   const installer = new Installer(appmapToolsURL);
 
   uploadArtifact = (path: string) =>
     Promise.resolve(console.log(`Repository changes stored in patch file: ${path}`));
 
-  return installer;
+  return install(installer);
 }
 
-export interface InstallerOptions {
-  appmapToolsURL: string;
-}
-
-export interface InstallerResults {
-  patchFile: string;
-}
-
-export default async function main(options: InstallerOptions): Promise<InstallerResults> {
-  let installer: Installer;
-  if (process.env.CI) installer = runInGitHub();
-  else installer = runAsScript(options.appmapToolsURL);
-
+async function install(installer: Installer): Promise<InstallerResults> {
   await installer.installAppMapTools();
   await installer.installAppMapLibrary();
   const patchFile = await installer.buildPatchFile();
@@ -78,7 +70,11 @@ export default async function main(options: InstallerOptions): Promise<Installer
 }
 
 if (require.main === module) {
-  const appmapToolsURL = process.argv[2];
-  if (!appmapToolsURL) throw new Error(usage());
-  main({appmapToolsURL});
+  if (process.env.CI) {
+    runInGitHub();
+  } else {
+    const appmapToolsURL = process.argv[2];
+    if (!appmapToolsURL) throw new Error(usage());
+    runAsScript(appmapToolsURL);
+  }
 }

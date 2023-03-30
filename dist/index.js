@@ -88,6 +88,8 @@ function downloadFile(url, path) {
             throw new Error(`Could not download ${url}`);
         if (!res.body)
             throw new Error(`Response body for ${url} is empty`);
+        if (res.status !== 200)
+            throw new Error(`Could not download ${url}: ${res.statusText}`);
         const fileStream = (0, fs_1.createWriteStream)(path);
         yield new Promise((resolve, reject) => {
             (0, assert_1.default)(res.body);
@@ -193,6 +195,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.runAsScript = exports.runInGitHub = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const artifact = __importStar(__nccwpck_require__(2605));
 const assert_1 = __importDefault(__nccwpck_require__(9491));
@@ -222,29 +225,30 @@ function uploadPatchFile(path) {
     });
 }
 function runInGitHub() {
-    core.debug(`Env var 'CI' is set. Running as a GitHub action.`);
-    (0, verbose_1.default)(core.getBooleanInput('verbose'));
-    const appmapConfig = core.getInput('appmap-config');
-    const appmapToolsURL = core.getInput('tools-url');
-    const installer = new Installer_1.default(appmapToolsURL, new ActionLogger());
-    if (appmapConfig)
-        installer.appmapConfig = appmapConfig;
-    uploadArtifact = uploadPatchFile;
-    return installer;
-}
-function runAsScript(appmapToolsURL) {
-    console.log(`Env var 'CI' is not set. Running as a local script.`);
-    const installer = new Installer_1.default(appmapToolsURL);
-    uploadArtifact = (path) => Promise.resolve(console.log(`Repository changes stored in patch file: ${path}`));
-    return installer;
-}
-function main(options) {
     return __awaiter(this, void 0, void 0, function* () {
-        let installer;
-        if (process.env.CI)
-            installer = runInGitHub();
-        else
-            installer = runAsScript(options.appmapToolsURL);
+        core.debug(`Env var 'CI' is set. Running as a GitHub action.`);
+        (0, verbose_1.default)(core.getBooleanInput('verbose'));
+        const appmapConfig = core.getInput('appmap-config');
+        const appmapToolsURL = core.getInput('tools-url');
+        const installer = new Installer_1.default(appmapToolsURL, new ActionLogger());
+        if (appmapConfig)
+            installer.appmapConfig = appmapConfig;
+        uploadArtifact = uploadPatchFile;
+        return install(installer);
+    });
+}
+exports.runInGitHub = runInGitHub;
+function runAsScript(appmapToolsURL) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(`Env var 'CI' is not set. Running as a local script.`);
+        const installer = new Installer_1.default(appmapToolsURL);
+        uploadArtifact = (path) => Promise.resolve(console.log(`Repository changes stored in patch file: ${path}`));
+        return install(installer);
+    });
+}
+exports.runAsScript = runAsScript;
+function install(installer) {
+    return __awaiter(this, void 0, void 0, function* () {
         yield installer.installAppMapTools();
         yield installer.installAppMapLibrary();
         const patchFile = yield installer.buildPatchFile();
@@ -253,12 +257,16 @@ function main(options) {
         return { patchFile };
     });
 }
-exports["default"] = main;
 if (require.main === require.cache[eval('__filename')]) {
-    const appmapToolsURL = process.argv[2];
-    if (!appmapToolsURL)
-        throw new Error(usage());
-    main({ appmapToolsURL });
+    if (process.env.CI) {
+        runInGitHub();
+    }
+    else {
+        const appmapToolsURL = process.argv[2];
+        if (!appmapToolsURL)
+            throw new Error(usage());
+        runAsScript(appmapToolsURL);
+    }
 }
 
 
