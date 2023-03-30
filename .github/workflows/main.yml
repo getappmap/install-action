@@ -21,7 +21,7 @@ jobs:
         # AppMap tools are installed to /tmp/appmap by the smoke test
         run: /tmp/appmap archive
       - name: Checkout appmap-archive branch
-        run: git checkout appmap-archive
+        run: git fetch && git checkout appmap-archive
       - name: Commit changes
         uses: EndBug/add-and-commit@v7
         with:
