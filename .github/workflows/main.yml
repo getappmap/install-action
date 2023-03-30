@@ -7,6 +7,14 @@ jobs:
     steps:
       - name: Checkout step
         uses: actions/checkout@v3
-      - name: Install AppMap step
-        uses: ./
-        id: install-appmap
+      - name: Build
+        run: yarn build
+      - name: Test
+        run: yarn test
+      - name: Package
+        run: yarn package
+      - name: Store build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: getappmap/install-action
+          path: dist
