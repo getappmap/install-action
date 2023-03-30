@@ -46,10 +46,8 @@ function runInGitHub(): Installer {
   return installer;
 }
 
-function runAsScript(): Installer {
+function runAsScript(appmapToolsURL: string): Installer {
   console.log(`Env var 'CI' is not set. Running as a local script.`);
-  const appmapToolsURL = process.argv[2];
-  if (!appmapToolsURL) throw new Error(usage());
   const installer = new Installer(appmapToolsURL);
 
   uploadArtifact = (path: string) =>
@@ -58,14 +56,29 @@ function runAsScript(): Installer {
   return installer;
 }
 
-(async () => {
+export interface InstallerOptions {
+  appmapToolsURL: string;
+}
+
+export interface InstallerResults {
+  patchFile: string;
+}
+
+export default async function main(options: InstallerOptions): Promise<InstallerResults> {
   let installer: Installer;
   if (process.env.CI) installer = runInGitHub();
-  else installer = runAsScript();
+  else installer = runAsScript(options.appmapToolsURL);
 
   await installer.installAppMapTools();
   await installer.installAppMapLibrary();
   const patchFile = await installer.buildPatchFile();
   assert(uploadArtifact);
   await uploadArtifact(patchFile);
-})();
+  return {patchFile};
+}
+
+if (require.main === module) {
+  const appmapToolsURL = process.argv[2];
+  if (!appmapToolsURL) throw new Error(usage());
+  main({appmapToolsURL});
+}

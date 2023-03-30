@@ -5,7 +5,8 @@ yarn-error.log*
 
 # Temporary build output
 build
+tmp
 
 # Files created when testing this action on itself.
-appmap.yml
+test/fixture/appmap.yml
 patch
