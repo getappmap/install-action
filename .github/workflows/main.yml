@@ -26,7 +26,7 @@ jobs:
       - name: Store action as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: getappmap/install-action
+          name: getappmap_install-action
           path: dist
       - name: Commit changes
         # If you forgot to package the distribution, you'll see a commit added to your PR
