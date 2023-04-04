@@ -63,7 +63,14 @@ class Installer {
                 (0, log_1.default)(log_1.LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
                 yield (0, promises_1.writeFile)('appmap.yml', this.appmapConfig);
             }
-            yield (0, executeCommand_1.executeCommand)(`${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`);
+            let cmd = `${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`;
+            if (this.projectType)
+                cmd += ` --project-type ${this.projectType}`;
+            if (this.buildFile)
+                cmd += ` --build-file ${this.buildFile}`;
+            if (this.installerName)
+                cmd += ` --installer-name ${this.installerName}`;
+            yield (0, executeCommand_1.executeCommand)(cmd);
             (0, log_1.default)(log_1.LogLevel.Info, `AppMap language library has been installed and configured.`);
         });
     }
@@ -262,14 +269,22 @@ function uploadPatchFile(path) {
         yield upload.uploadArtifact('appmap-install.patch', [path], '.');
     });
 }
+const Options = {
+    'appmap-config': 'appmapConfig',
+    'project-type': 'projectType',
+    'installer-name': 'installerName',
+    'build-file': 'buildFile',
+};
 function runInGitHub() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, verbose_1.default)(core.getBooleanInput('verbose'));
-        const appmapConfig = core.getInput('appmap-config');
         const appmapToolsURL = core.getInput('tools-url');
         const installer = new Installer_1.default(appmapToolsURL);
-        if (appmapConfig)
-            installer.appmapConfig = appmapConfig;
+        for (const [inputName, fieldName] of Object.entries(Options)) {
+            const value = core.getInput(inputName);
+            if (value)
+                installer[fieldName] = value;
+        }
         yield installer.installAppMapTools();
         yield installer.installAppMapLibrary();
         const patch = yield installer.buildPatchFile();

@@ -8,6 +8,9 @@ import log, {LogLevel} from './log';
 export default class Installer {
   public appmapConfig?: string;
   public appmapToolsPath: string;
+  public projectType?: string;
+  public installerName?: string;
+  public buildFile?: string;
 
   constructor(public appmapToolsURL: string) {
     this.appmapToolsPath = join(tmpdir(), 'appmap');
@@ -24,9 +27,11 @@ export default class Installer {
       log(LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
       await writeFile('appmap.yml', this.appmapConfig);
     }
-    await executeCommand(
-      `${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`
-    );
+    let cmd = `${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`;
+    if (this.projectType) cmd += ` --project-type ${this.projectType}`;
+    if (this.buildFile) cmd += ` --build-file ${this.buildFile}`;
+    if (this.installerName) cmd += ` --installer-name ${this.installerName}`;
+    await executeCommand(cmd);
 
     log(LogLevel.Info, `AppMap language library has been installed and configured.`);
   }

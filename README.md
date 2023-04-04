@@ -17,6 +17,11 @@ can also add the following step to your workflow to commit the changes automatic
         uses: EndBug/add-and-commit@v9
 ```
 
+## Prerequisites
+
+Before running this action, ensure that the programming language and package manager used by your
+project are installed and available.
+
 ## Development
 
 ```
@@ -35,6 +40,6 @@ $ yarn package
 
 ## TODO
 
-- [ ] Update description to action.yml.
 - [ ] Update repo description in GitHub.
 - [ ] Use appmap-action-utils
+- [x] Update description in action.yml.
