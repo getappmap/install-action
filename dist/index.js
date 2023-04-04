@@ -257,7 +257,7 @@ const promises_1 = __nccwpck_require__(3292);
 function uploadPatchFile(path) {
     return __awaiter(this, void 0, void 0, function* () {
         const patch = yield (0, promises_1.readFile)(path, 'utf8');
-        core.setOutput('appmap_install.patch', patch);
+        core.setOutput('patch', patch);
         const upload = artifact.create();
         yield upload.uploadArtifact('appmap-install.patch', [path], '.');
     });
