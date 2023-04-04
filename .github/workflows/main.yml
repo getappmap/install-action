@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Build, test and package
     steps:
-      - name: Checkout step
+      - name: Checkout
         uses: actions/checkout@v3
-      - name: Install dependencies
+      - name: Install dependency libraries
         run: yarn install
       - name: Build
         run: yarn build

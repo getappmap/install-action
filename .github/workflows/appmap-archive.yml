@@ -18,6 +18,8 @@ jobs:
       - name: Install and configure AppMap tools
         uses: ./
         id: install-appmap
+        with:
+          verbose: true
       - name: Build AppMaps
         run: yarn appmap
       - name: Archive AppMaps
