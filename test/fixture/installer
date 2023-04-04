@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# If argument 1 is not 'install', raise an error
+if [ "$1" != "install" ]; then
+  echo "Error: first argument must be 'install'"
+  exit 1
+fi
+
+# Write command options to install.log file
+echo "$@" > install.log
+

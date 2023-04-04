@@ -9,8 +9,8 @@ GitHub action to install AppMap.
 
 AppMap configuration can also be explicitly provided via `appmap-config` parameter.
 
-On completion, a diff of the git repo is attached as a GitHub artifact. You can also add the
-following step to your workflow to commit the changes automatically:
+On completion, a patch file of the changes applied to the repo is attached as a GitHub artifact. You
+can also add the following step to your workflow to commit the changes automatically:
 
 ```
       - name: Commit changes
@@ -32,3 +32,9 @@ $ yarn test
 # Package the project into a distributable GitHub action
 $ yarn package
 ```
+
+## TODO
+
+- [ ] Update description to action.yml.
+- [ ] Update repo description in GitHub.
+- [ ] Use appmap-action-utils

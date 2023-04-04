@@ -1,9 +1,0 @@
-{
-  "name": "install-appmap-action-fixture",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "devDependencies": {
-    "@appland/appmap-agent-js": "^13.6.0"
-  }
-}
