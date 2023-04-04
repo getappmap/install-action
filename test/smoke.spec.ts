@@ -2,7 +2,7 @@ import {join} from 'path';
 import verbose from '../src/verbose';
 import Installer from '../src/Installer';
 import {readFileSync} from 'fs';
-import {readFile, writeFile} from 'fs/promises';
+import {mkdir, readFile, writeFile} from 'fs/promises';
 
 const pwd = process.cwd();
 
@@ -26,6 +26,7 @@ async function restoreFixtureFiles() {
 if (process.env.VERBOSE) verbose(true);
 
 describe('install-appmap-action', () => {
+  beforeEach(() => mkdir('tmp', {recursive: true}));
   beforeEach(() => process.chdir(join(__dirname, 'fixture', 'app')));
   afterEach(() => restoreFixtureFiles);
   afterEach(() => process.chdir(pwd));
