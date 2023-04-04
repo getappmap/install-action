@@ -36,11 +36,11 @@ export default class Installer {
     log(LogLevel.Info, `AppMap language library has been installed and configured.`);
   }
 
-  async buildPatchFile() {
+  async buildPatchFile(): Promise<{filename: string; contents: string}> {
     await executeCommand(`git add -N .`);
     await executeCommand(`git diff > patch`);
     const patch = await readFile('patch', 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);
-    return patch;
+    return {filename: 'patch', contents: patch};
   }
 }

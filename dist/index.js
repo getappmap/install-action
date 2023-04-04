@@ -80,7 +80,7 @@ class Installer {
             yield (0, executeCommand_1.executeCommand)(`git diff > patch`);
             const patch = yield (0, promises_1.readFile)('patch', 'utf8');
             (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
-            return patch;
+            return { filename: 'patch', contents: patch };
         });
     }
 }
@@ -260,13 +260,11 @@ const core = __importStar(__nccwpck_require__(2186));
 const artifact = __importStar(__nccwpck_require__(2605));
 const Installer_1 = __importDefault(__nccwpck_require__(3927));
 const verbose_1 = __importDefault(__nccwpck_require__(1753));
-const promises_1 = __nccwpck_require__(3292);
-function uploadPatchFile(path) {
+function uploadPatchFile(patch) {
     return __awaiter(this, void 0, void 0, function* () {
-        const patch = yield (0, promises_1.readFile)(path, 'utf8');
-        core.setOutput('patch', patch);
+        core.setOutput('patch', patch.contents);
         const upload = artifact.create();
-        yield upload.uploadArtifact('appmap-install.patch', [path], '.');
+        yield upload.uploadArtifact('appmap-install.patch', [patch.filename], '.');
     });
 }
 const Options = {
@@ -288,7 +286,7 @@ function runInGitHub() {
         yield installer.installAppMapTools();
         yield installer.installAppMapLibrary();
         const patch = yield installer.buildPatchFile();
-        if (patch.length > 0) {
+        if (patch.contents.length > 0) {
             yield uploadPatchFile(patch);
         }
     });
