@@ -4,11 +4,10 @@ import Installer from './Installer';
 import verbose from './verbose';
 import {readFile} from 'fs/promises';
 
-async function uploadPatchFile(path: string) {
-  const patch = await readFile(path, 'utf8');
-  core.setOutput('patch', patch);
+async function uploadPatchFile(patch: {filename: string; contents: string}) {
+  core.setOutput('patch', patch.contents);
   const upload = artifact.create();
-  await upload.uploadArtifact('appmap-install.patch', [path], '.');
+  await upload.uploadArtifact('appmap-install.patch', [patch.filename], '.');
 }
 
 const Options: Record<string, keyof Installer> = {
@@ -32,7 +31,7 @@ export async function runInGitHub(): Promise<void> {
   await installer.installAppMapTools();
   await installer.installAppMapLibrary();
   const patch = await installer.buildPatchFile();
-  if (patch.length > 0) {
+  if (patch.contents.length > 0) {
     await uploadPatchFile(patch);
   }
 }

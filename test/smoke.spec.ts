@@ -17,8 +17,8 @@ const FixtureFiles = ['install.log', 'appmap.yml'].reduce(
 );
 async function restoreFixtureFiles() {
   await Promise.all(
-    Object.entries(FixtureFiles).map(([fileName, contents]) => {
-      writeFile(fileName, contents);
+    Object.entries(FixtureFiles).map(async ([fileName, contents]) => {
+      await writeFile(fileName, contents);
     })
   );
 }
@@ -28,7 +28,7 @@ if (process.env.VERBOSE) verbose(true);
 describe('install-appmap-action', () => {
   beforeEach(() => mkdir('tmp', {recursive: true}));
   beforeEach(() => process.chdir(join(__dirname, 'fixture', 'app')));
-  afterEach(() => restoreFixtureFiles);
+  afterEach(restoreFixtureFiles);
   afterEach(() => process.chdir(pwd));
 
   it('installs AppMap tools', async () => {
@@ -44,6 +44,6 @@ describe('install-appmap-action', () => {
       'install --no-interactive --no-overwrite-appmap-config'
     );
     expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
-    expect(patch).toMatch(/\+install --no-interactive/);
+    expect(patch.contents).toMatch(/\+install --no-interactive/);
   });
 });
