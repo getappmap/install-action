@@ -73,7 +73,7 @@ class Installer {
             yield (0, executeCommand_1.executeCommand)(`git diff > patch`);
             const patch = yield (0, promises_1.readFile)('patch', 'utf8');
             (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
-            return 'patch';
+            return patch;
         });
     }
 }
@@ -101,32 +101,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.downloadFile = void 0;
-const assert_1 = __importDefault(__nccwpck_require__(9491));
 const fs_1 = __nccwpck_require__(7147);
 const promises_1 = __nccwpck_require__(3292);
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
 function downloadFile(url, path) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(url.protocol);
-        console.log(url);
-        // Otherwise - TypeError: Only absolute URLs are supported
+        let readStream;
         if (url.protocol === 'file:') {
-            yield (0, promises_1.copyFile)(url.pathname, path);
-            return;
+            readStream = (yield (0, promises_1.open)(url.pathname, 'r')).createReadStream();
         }
-        const res = yield (0, node_fetch_1.default)(url);
-        if (!res)
-            throw new Error(`Could not download ${url}`);
-        if (!res.body)
-            throw new Error(`Response body for ${url} is empty`);
-        if (res.status !== 200)
-            throw new Error(`Could not download ${url}: ${res.statusText}`);
-        const fileStream = (0, fs_1.createWriteStream)(path);
+        else {
+            const res = yield (0, node_fetch_1.default)(url);
+            if (!res)
+                throw new Error(`Could not download ${url}`);
+            if (!res.body)
+                throw new Error(`Response body for ${url} is empty`);
+            if (res.status !== 200)
+                throw new Error(`Could not download ${url}: ${res.statusText}`);
+            readStream = res.body;
+        }
+        const writeStream = (0, fs_1.createWriteStream)(path);
         yield new Promise((resolve, reject) => {
-            (0, assert_1.default)(res.body);
-            res.body.pipe(fileStream);
-            res.body.on('error', reject);
-            fileStream.on('finish', resolve);
+            readStream.on('error', reject).pipe(writeStream).on('error', reject).on('finish', resolve);
         });
     });
 }
@@ -260,9 +256,10 @@ const verbose_1 = __importDefault(__nccwpck_require__(1753));
 const promises_1 = __nccwpck_require__(3292);
 function uploadPatchFile(path) {
     return __awaiter(this, void 0, void 0, function* () {
-        core.setOutput('patch', yield (0, promises_1.readFile)(path, 'utf8'));
+        const patch = yield (0, promises_1.readFile)(path, 'utf8');
+        core.setOutput('appmap_install.patch', patch);
         const upload = artifact.create();
-        yield upload.uploadArtifact('patch', [path], '.');
+        yield upload.uploadArtifact('appmap-install.patch', [path], '.');
     });
 }
 function runInGitHub() {
@@ -275,9 +272,10 @@ function runInGitHub() {
             installer.appmapConfig = appmapConfig;
         yield installer.installAppMapTools();
         yield installer.installAppMapLibrary();
-        const patchFile = yield installer.buildPatchFile();
-        yield uploadPatchFile(patchFile);
-        return { patchFile };
+        const patch = yield installer.buildPatchFile();
+        if (patch.length > 0) {
+            yield uploadPatchFile(patch);
+        }
     });
 }
 exports.runInGitHub = runInGitHub;
