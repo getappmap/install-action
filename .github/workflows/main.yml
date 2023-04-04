@@ -16,33 +16,9 @@ jobs:
         run: yarn build
       - name: Test
         run: yarn test
-      - name: Build GitHub action
+      - name: Package
         run: yarn package
-      - name: Create AppMaps archive
-        # AppMap tools are installed to /tmp/appmap by the smoke test
-        run: /tmp/appmap archive
-      - name: Commit changes
-        run: |
-          git_revision=$(git rev-parse HEAD)
-          git fetch
-          git checkout appmap-archive
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add .appmap
-          git commit -m "chore: AppMaps for $GITHUB_REF"
-          git push origin appmap-archive
-          git checkout $git_revision
-      - name: Store AppMaps archive as an artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: appmaps.tar
-          path: .appmap
-      - name: Store action as an artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: getappmap_install-action
-          path: dist
-      - name: Commit changes
+      - name: Commit package changes, if any
         # If you forgot to package the distribution, you'll see a commit added to your PR
         uses: EndBug/add-and-commit@v7
         with:
