@@ -6,6 +6,29 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -21,27 +44,27 @@ const os_1 = __nccwpck_require__(2037);
 const path_1 = __nccwpck_require__(1017);
 const downloadFile_1 = __nccwpck_require__(8195);
 const executeCommand_1 = __nccwpck_require__(3285);
+const log_1 = __importStar(__nccwpck_require__(1285));
 class Installer {
-    constructor(appmapToolsURL, logger = console) {
+    constructor(appmapToolsURL) {
         this.appmapToolsURL = appmapToolsURL;
-        this.logger = logger;
         this.appmapToolsPath = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap');
     }
     installAppMapTools() {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, downloadFile_1.downloadFile)(new URL(this.appmapToolsURL), this.appmapToolsPath);
             yield (0, promises_1.chmod)(this.appmapToolsPath, 0o755);
-            this.logger.info(`AppMap tools are installed at ${this.appmapToolsPath}`);
+            (0, log_1.default)(log_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
         });
     }
     installAppMapLibrary() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.appmapConfig) {
-                this.logger.info(`Installing the appmap.yml configuration provided by action input.`);
+                (0, log_1.default)(log_1.LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
                 yield (0, promises_1.writeFile)('appmap.yml', this.appmapConfig);
             }
             yield (0, executeCommand_1.executeCommand)(`${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`);
-            this.logger.info(`AppMap language library has been installed and configured.`);
+            (0, log_1.default)(log_1.LogLevel.Info, `AppMap language library has been installed and configured.`);
         });
     }
     buildPatchFile() {
@@ -49,7 +72,7 @@ class Installer {
             yield (0, executeCommand_1.executeCommand)(`git add -N .`);
             yield (0, executeCommand_1.executeCommand)(`git diff > patch`);
             const patch = yield (0, promises_1.readFile)('patch', 'utf8');
-            this.logger.debug(`Patch file contents:\n${patch}`);
+            (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
             return 'patch';
         });
     }
@@ -80,9 +103,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.downloadFile = void 0;
 const assert_1 = __importDefault(__nccwpck_require__(9491));
 const fs_1 = __nccwpck_require__(7147);
+const promises_1 = __nccwpck_require__(3292);
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
 function downloadFile(url, path) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log(url.protocol);
+        console.log(url);
+        // Otherwise - TypeError: Only absolute URLs are supported
+        if (url.protocol === 'file:') {
+            yield (0, promises_1.copyFile)(url.pathname, path);
+            return;
+        }
         const res = yield (0, node_fetch_1.default)(url);
         if (!res)
             throw new Error(`Could not download ${url}`);
@@ -109,31 +140,56 @@ exports.downloadFile = downloadFile;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.executeCommand = void 0;
 const child_process_1 = __nccwpck_require__(2081);
+const log_1 = __importStar(__nccwpck_require__(1285));
 const verbose_1 = __importDefault(__nccwpck_require__(1753));
-function executeCommand(cmd, printCommand = false, printStdout = false, printStderr = false) {
-    if (printCommand || (0, verbose_1.default)())
+function executeCommand(cmd, printCommand = (0, verbose_1.default)(), printStdout = (0, verbose_1.default)(), printStderr = (0, verbose_1.default)()) {
+    if (printCommand)
         console.log(cmd);
     const command = (0, child_process_1.exec)(cmd);
     const result = [];
     const stderr = [];
     if (command.stdout) {
         command.stdout.addListener('data', data => {
-            if (printStdout || (0, verbose_1.default)())
-                process.stdout.write(data);
+            if (printStdout)
+                (0, log_1.default)(log_1.LogLevel.Debug, data);
             result.push(data);
         });
     }
     if (command.stderr) {
-        if (printStderr || (0, verbose_1.default)())
-            command.stderr.pipe(process.stdout);
-        else
-            command.stderr.addListener('data', data => stderr.push(data));
+        command.stderr.addListener('data', data => {
+            if (printStderr)
+                (0, log_1.default)(log_1.LogLevel.Debug, data);
+            stderr.push(data);
+        });
     }
     return new Promise((resolve, reject) => {
         command.addListener('exit', code => {
@@ -142,8 +198,9 @@ function executeCommand(cmd, printCommand = false, printStdout = false, printStd
             }
             else {
                 if (!printCommand)
-                    console.log(cmd);
-                console.warn(stderr.join(''));
+                    (0, log_1.default)(log_1.LogLevel.Warn, cmd);
+                (0, log_1.default)(log_1.LogLevel.Warn, stderr.join(''));
+                (0, log_1.default)(log_1.LogLevel.Warn, result.join(''));
                 reject(new Error(`Command failed with code ${code}`));
             }
         });
@@ -195,14 +252,79 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runAsScript = exports.runInGitHub = void 0;
+exports.runInGitHub = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const artifact = __importStar(__nccwpck_require__(2605));
-const assert_1 = __importDefault(__nccwpck_require__(9491));
 const Installer_1 = __importDefault(__nccwpck_require__(3927));
 const verbose_1 = __importDefault(__nccwpck_require__(1753));
 const promises_1 = __nccwpck_require__(3292);
-let uploadArtifact;
+function uploadPatchFile(path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.setOutput('patch', yield (0, promises_1.readFile)(path, 'utf8'));
+        const upload = artifact.create();
+        yield upload.uploadArtifact('patch', [path], '.');
+    });
+}
+function runInGitHub() {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, verbose_1.default)(core.getBooleanInput('verbose'));
+        const appmapConfig = core.getInput('appmap-config');
+        const appmapToolsURL = core.getInput('tools-url');
+        const installer = new Installer_1.default(appmapToolsURL);
+        if (appmapConfig)
+            installer.appmapConfig = appmapConfig;
+        yield installer.installAppMapTools();
+        yield installer.installAppMapLibrary();
+        const patchFile = yield installer.buildPatchFile();
+        yield uploadPatchFile(patchFile);
+        return { patchFile };
+    });
+}
+exports.runInGitHub = runInGitHub;
+if (require.main === require.cache[eval('__filename')]) {
+    runInGitHub();
+}
+
+
+/***/ }),
+
+/***/ 1285:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setLogger = exports.ActionLogger = exports.LogLevel = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+var LogLevel;
+(function (LogLevel) {
+    LogLevel["Debug"] = "debug";
+    LogLevel["Info"] = "info";
+    LogLevel["Warn"] = "warn";
+})(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
 class ActionLogger {
     debug(message) {
         core.debug(message);
@@ -214,60 +336,20 @@ class ActionLogger {
         core.warning(message);
     }
 }
-function usage() {
-    return `Usage: node ${process.argv[1]} <appmap-tools-url>`;
+exports.ActionLogger = ActionLogger;
+let Logger;
+function setLogger(logger) {
+    Logger = logger;
 }
-function uploadPatchFile(path) {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.setOutput('patch', yield (0, promises_1.readFile)(path, 'utf8'));
-        const upload = artifact.create();
-        yield upload.uploadArtifact('patch', [path], '.');
-    });
-}
-function runInGitHub() {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.debug(`Env var 'CI' is set. Running as a GitHub action.`);
-        (0, verbose_1.default)(core.getBooleanInput('verbose'));
-        const appmapConfig = core.getInput('appmap-config');
-        const appmapToolsURL = core.getInput('tools-url');
-        const installer = new Installer_1.default(appmapToolsURL, new ActionLogger());
-        if (appmapConfig)
-            installer.appmapConfig = appmapConfig;
-        uploadArtifact = uploadPatchFile;
-        return install(installer);
-    });
-}
-exports.runInGitHub = runInGitHub;
-function runAsScript(appmapToolsURL) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log(`Env var 'CI' is not set. Running as a local script.`);
-        const installer = new Installer_1.default(appmapToolsURL);
-        uploadArtifact = (path) => Promise.resolve(console.log(`Repository changes stored in patch file: ${path}`));
-        return install(installer);
-    });
-}
-exports.runAsScript = runAsScript;
-function install(installer) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield installer.installAppMapTools();
-        yield installer.installAppMapLibrary();
-        const patchFile = yield installer.buildPatchFile();
-        (0, assert_1.default)(uploadArtifact);
-        yield uploadArtifact(patchFile);
-        return { patchFile };
-    });
-}
-if (require.main === require.cache[eval('__filename')]) {
-    if (process.env.CI) {
-        runInGitHub();
+exports.setLogger = setLogger;
+function log(level, message) {
+    if (!Logger) {
+        console[level](message);
+        return;
     }
-    else {
-        const appmapToolsURL = process.argv[2];
-        if (!appmapToolsURL)
-            throw new Error(usage());
-        runAsScript(appmapToolsURL);
-    }
+    Logger[level](message);
 }
+exports["default"] = log;
 
 
 /***/ }),

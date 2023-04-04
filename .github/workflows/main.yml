@@ -1,7 +1,10 @@
 on: [push]
 
+env:
+  APPMAP_TELEMETRY_DISABLED: 'true'
+
 jobs:
-  install_appmap_job:
+  ci:
     runs-on: ubuntu-latest
     name: Build, test and package
     steps:

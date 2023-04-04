@@ -32,3 +32,9 @@ $ yarn test
 # Package the project into a distributable GitHub action
 $ yarn package
 ```
+
+## TODO
+
+- [ ] Update description to action.yml.
+- [ ] Update repo description in GitHub.
+- [ ] Use appmap-action-utils
