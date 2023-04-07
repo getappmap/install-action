@@ -1,6 +1,5 @@
-import assert from 'assert';
 import {createWriteStream} from 'fs';
-import {chmod, copyFile, open} from 'fs/promises';
+import {open} from 'fs/promises';
 import fetch from 'node-fetch';
 
 export async function downloadFile(url: URL, path: string) {
