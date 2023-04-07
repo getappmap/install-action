@@ -17,13 +17,13 @@ jobs:
         run: yarn install
       - name: Install and configure AppMap tools
         uses: ./
-        id: install-appmap
+        id: appmap-install
         with:
           verbose: true
       - name: Build AppMaps
         run: yarn appmap
       - name: Archive AppMaps
         uses: getappmap/archive-appmap-action@v1-pre.8
-        id: archive-appmaps
+        id: appmap-archive
         with:
           verbose: true
