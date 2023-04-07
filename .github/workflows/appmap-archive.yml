@@ -2,6 +2,9 @@ on:
   pull_request:
     types:
       - closed
+  schedule:
+    # Keep the artifact up to date, as it will expire after 90 days.
+    - cron: 1 1 1 * *
 
 env:
   APPMAP_TELEMETRY_DISABLED: 'true'
