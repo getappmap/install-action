@@ -168,15 +168,8 @@ class Installer {
     }
     installAppMapTools() {
         return __awaiter(this, void 0, void 0, function* () {
-            const tempFile = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap-tools');
-            yield (0, downloadFile_1.downloadFile)(new URL(this.appmapToolsURL), tempFile);
-            yield (0, promises_1.chmod)(tempFile, 0o755);
-            const dirOwner = (yield (0, promises_1.stat)((0, path_1.dirname)(this.appmapToolsPath))).uid;
-            const processOwner = process.getuid ? process.getuid() : undefined;
-            if (processOwner !== undefined && dirOwner !== processOwner)
-                yield (0, executeCommand_1.executeCommand)(`sudo mv ${tempFile} ${this.appmapToolsPath}`);
-            else
-                yield (0, promises_1.rename)(tempFile, this.appmapToolsPath);
+            yield (0, downloadFile_1.downloadFile)(new URL(this.appmapToolsURL), this.appmapToolsPath);
+            yield (0, promises_1.chmod)(this.appmapToolsPath, 0o755);
             (0, log_1.default)(log_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
         });
     }
