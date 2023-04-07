@@ -12,13 +12,27 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependency libraries
         run: yarn install
+      - name: Install and configure AppMap tools
+        uses: ./
+        id: install-appmap
+        with:
+          verbose: true
       - name: Build
         run: yarn build
+      - name: Make AppMaps
+        run: yarn appmap || true
+      - name: Preflight
+        uses: getappmap/preflight-appmap-action@v1-pre.2
+        with:
+          base-revision: ${{ github.event.pull_request.base.sha }}
+          head-revision: ${{ github.event.pull_request.head.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          verbose: true
       - name: Test
         run: yarn test
-      - name: Package
+      - name: Build GitHub action
         run: yarn package
-      - name: Commit package changes, if any
+      - name: Commit changes
         # If you forgot to package the distribution, you'll see a commit added to your PR
         uses: EndBug/add-and-commit@v7
         with:
