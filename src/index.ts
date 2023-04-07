@@ -2,13 +2,14 @@ import * as core from '@actions/core';
 import * as artifact from '@actions/artifact';
 import Installer from './Installer';
 import verbose from './verbose';
+import {ArgumentParser} from 'argparse';
+import {parse} from 'yaml';
 import {readFile} from 'fs/promises';
-
-async function uploadPatchFile(patch: {filename: string; contents: string}) {
-  core.setOutput('patch', patch.contents);
-  const upload = artifact.create();
-  await upload.uploadArtifact('appmap-install.patch', [patch.filename], '.');
-}
+import {join} from 'path';
+import assert from 'assert';
+import run from './run';
+import {GitHubArtifactStore} from './GitHubArtifactStore';
+import {DirectoryArtifactStore} from './DirectoryArtifactStore';
 
 const Options: Record<string, keyof Installer> = {
   'appmap-config': 'appmapConfig',
@@ -20,22 +21,50 @@ const Options: Record<string, keyof Installer> = {
 export async function runInGitHub(): Promise<void> {
   verbose(core.getBooleanInput('verbose'));
 
-  const appmapToolsURL = core.getInput('tools-url');
-  const installer = new Installer(appmapToolsURL);
+  await run(new GitHubArtifactStore(), {
+    appmapConfig: core.getInput('appmap-config'),
+    projectType: core.getInput('project-type'),
+    buildFile: core.getInput('build-file'),
+    installerName: core.getInput('installer-name'),
+    toolsUrl: core.getInput('tools-url'),
+  });
+}
 
-  for (const [inputName, fieldName] of Object.entries(Options)) {
-    const value = core.getInput(inputName);
-    if (value) (installer as any)[fieldName] = value;
-  }
+async function runLocally() {
+  const action = parse(await readFile(join(__dirname, '..', 'action.yml'), 'utf8'));
+  const toolsUrl = action?.inputs?.['tools-url']?.default;
+  assert(toolsUrl, 'inputs.tools-url.default not found in action.yml');
 
-  await installer.installAppMapTools();
-  await installer.installAppMapLibrary();
-  const patch = await installer.buildPatchFile();
-  if (patch.contents.length > 0) {
-    await uploadPatchFile(patch);
-  }
+  const parser = new ArgumentParser({
+    description: 'Preflight command',
+  });
+  parser.add_argument('-v', '--verbose');
+  parser.add_argument('-d', '--directory', {help: 'Program working directory'});
+  parser.add_argument('--artifact-dir', {default: '.appmap/artifacts'});
+  parser.add_argument('--tools-url', {default: toolsUrl});
+  parser.add_argument('--appmap-config');
+  parser.add_argument('--project-type');
+  parser.add_argument('--build-file');
+  parser.add_argument('--installer-name');
+
+  const options = parser.parse_args();
+
+  verbose(options.verbose === 'true' || options.verbose === true);
+  const directory = options.directory;
+  if (directory) process.chdir(directory);
+  const artifactDir = options.artifact_dir;
+  assert(artifactDir);
+
+  await run(new DirectoryArtifactStore(artifactDir), {
+    appmapConfig: options.appmap_config,
+    projectType: options.project_type,
+    buildFile: options.build_file,
+    installerName: options.installer_name,
+    toolsUrl: options.tools_url,
+  });
 }
 
 if (require.main === module) {
-  runInGitHub();
+  if (process.env.CI) runInGitHub();
+  else runLocally();
 }
