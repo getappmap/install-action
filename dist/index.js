@@ -76,11 +76,12 @@ class Installer {
     }
     buildPatchFile() {
         return __awaiter(this, void 0, void 0, function* () {
+            const patchFileName = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap-install.patch');
             yield (0, executeCommand_1.executeCommand)(`git add -N .`);
-            yield (0, executeCommand_1.executeCommand)(`git diff > patch`);
+            yield (0, executeCommand_1.executeCommand)(`git diff > ${patchFileName}`);
             const patch = yield (0, promises_1.readFile)('patch', 'utf8');
             (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
-            return { filename: 'patch', contents: patch };
+            return { filename: patchFileName, contents: patch };
         });
     }
 }
