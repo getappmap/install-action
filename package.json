@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "appmap": "appmap-agent-js -- jest",
+    "appmap": "appmap-agent-js -- jest --no-cache",
     "clean": "rm -rf build dist tmp",
     "format": "prettier --write '**/*.ts'",
     "package": "ncc build --source-map --license licenses.txt"
@@ -28,6 +28,10 @@
     "@actions/artifact": "^1.1.1",
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "node-fetch": "^2"
+    "@types/argparse": "^2.0.10",
+    "@types/yaml": "^1.9.7",
+    "argparse": "^2.0.1",
+    "node-fetch": "^2",
+    "yaml": "^2.2.1"
   }
 }

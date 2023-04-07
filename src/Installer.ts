@@ -37,10 +37,11 @@ export default class Installer {
   }
 
   async buildPatchFile(): Promise<{filename: string; contents: string}> {
+    const patchFileName = join(tmpdir(), 'appmap-install.patch');
     await executeCommand(`git add -N .`);
-    await executeCommand(`git diff > patch`);
-    const patch = await readFile('patch', 'utf8');
+    await executeCommand(`git diff > ${patchFileName}`);
+    const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);
-    return {filename: 'patch', contents: patch};
+    return {filename: patchFileName, contents: patch};
   }
 }
