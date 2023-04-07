@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "appmap": "appmap-agent-js -- jest",
+    "appmap": "appmap-agent-js -- jest --no-cache",
     "clean": "rm -rf build dist tmp",
     "format": "prettier --write '**/*.ts'",
     "package": "ncc build --source-map --license licenses.txt"
