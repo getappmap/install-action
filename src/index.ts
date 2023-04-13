@@ -31,17 +31,13 @@ export async function runInGitHub(): Promise<void> {
 }
 
 async function runLocally() {
-  const action = parse(await readFile(join(__dirname, '..', 'action.yml'), 'utf8'));
-  const toolsUrl = action?.inputs?.['tools-url']?.default;
-  assert(toolsUrl, 'inputs.tools-url.default not found in action.yml');
-
   const parser = new ArgumentParser({
     description: 'Preflight command',
   });
   parser.add_argument('-v', '--verbose');
   parser.add_argument('-d', '--directory', {help: 'Program working directory'});
   parser.add_argument('--artifact-dir', {default: '.appmap/artifacts'});
-  parser.add_argument('--tools-url', {default: toolsUrl});
+  parser.add_argument('--tools-url');
   parser.add_argument('--appmap-config');
   parser.add_argument('--project-type');
   parser.add_argument('--build-file');

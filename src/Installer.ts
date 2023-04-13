@@ -1,4 +1,5 @@
 import {chmod, mkdir, readFile, writeFile} from 'fs/promises';
+import fetch from 'node-fetch';
 import {tmpdir} from 'os';
 import {join} from 'path';
 import {downloadFile} from './downloadFile';
@@ -12,7 +13,7 @@ export default class Installer {
   public installerName?: string;
   public buildFile?: string;
 
-  constructor(public appmapToolsURL: string) {
+  constructor(public appmapToolsURL?: string) {
     this.appmapToolsPath = join(tmpdir(), 'appmap');
   }
 
@@ -43,7 +44,34 @@ export default class Installer {
   }
 
   async installAppMapTools() {
-    await downloadFile(new URL(this.appmapToolsURL), this.appmapToolsPath);
+    let preflightReleaseURL = this.appmapToolsURL;
+    let page = 1;
+    while (!preflightReleaseURL) {
+      const releases = await (
+        await fetch(
+          `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`,
+          {
+            headers: {Accept: 'application/vnd.github+json'},
+          }
+        )
+      ).json();
+      if (releases.length === 0) break;
+
+      page += 1;
+      const release = releases.find((release: any) =>
+        release.name.startsWith('@appland/appmap-preflight')
+      );
+      if (release) {
+        preflightReleaseURL = release.assets.find(
+          (asset: any) => asset.name === 'appmap-preflight-linux-x64'
+        ).browser_download_url;
+      }
+    }
+
+    if (!preflightReleaseURL) throw new Error('Could not find @appland/appmap-preflight release');
+
+    log(LogLevel.Info, `Installing AppMap tools from ${preflightReleaseURL}`);
+    await downloadFile(new URL(preflightReleaseURL), this.appmapToolsPath);
     await chmod(this.appmapToolsPath, 0o755);
     log(LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
   }
