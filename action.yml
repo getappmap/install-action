@@ -17,8 +17,8 @@ inputs:
     description: |
       Installer name to be used, in case of ambiguity. This is an advanced option.
   tools-url:
-    description: URL to the AppMap tools.
-    default: https://github.com/getappmap/appmap-js/releases/download/%40appland%2Fappmap-preflight-v1.0-pre.3/appmap-preflight-linux-x64
+    description:
+      URL to the AppMap tools. By default, the latest version will be downloaded and installed.
   verbose:
     description: Enable verbose logging.
     default: false
