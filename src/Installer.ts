@@ -40,9 +40,14 @@ export default class Installer {
       if (releases.length === 0) break;
 
       page += 1;
-      preflightReleaseURL = releases.find((release: any) =>
+      const release = releases.find((release: any) =>
         release.name.startsWith('@appland/appmap-preflight')
       );
+      if (release) {
+        preflightReleaseURL = release.assets.find(
+          (asset: any) => asset.name === 'appmap-preflight-linux-x64'
+        ).browser_download_url;
+      }
     }
 
     if (!preflightReleaseURL) throw new Error('Could not find @appland/appmap-preflight release');
