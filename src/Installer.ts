@@ -34,11 +34,11 @@ export default class Installer {
       await writeFile('.gitignore', gitignore.join('\n'));
       await executeCommand('git add .gitignore');
       await executeCommand(
-        `git commit -c user.email='${
+        `git -c "user.email=${
           process.env.GITHUB_ACTOR || 'github-action'
-        }@users.noreply.github.com' -c user.name='${
+        }@users.noreply.github.com" -c "user.name=${
           process.env.GITHUB_ACTOR || 'github-action'
-        }' -m 'Ignore AppMap archives and working files'`
+        }" commit -m 'Ignore AppMap archives and working files'`
       );
     }
   }
