@@ -1,4 +1,4 @@
-import {chmod, readFile, writeFile} from 'fs/promises';
+import {chmod, mkdir, readFile, writeFile} from 'fs/promises';
 import {tmpdir} from 'os';
 import {join} from 'path';
 import {downloadFile} from './downloadFile';
@@ -14,6 +14,14 @@ export default class Installer {
 
   constructor(public appmapToolsURL: string) {
     this.appmapToolsPath = join(tmpdir(), 'appmap');
+  }
+
+  async ignoreDotAppmap() {
+    const gitignore = (await readFile('.gitignore', 'utf8')).split('\n');
+    if (!gitignore.includes('.appmap')) {
+      log(LogLevel.Info, `Adding .appmap to .gitignore`);
+      await writeFile('.gitignore', [gitignore, '.appmap'].join('\n'));
+    }
   }
 
   async installAppMapTools() {
@@ -37,8 +45,9 @@ export default class Installer {
   }
 
   async buildPatchFile(): Promise<{filename: string; contents: string}> {
-    const patchFileName = join(tmpdir(), 'appmap-install.patch');
+    const patchFileName = join('.appmap', 'appmap-install.patch');
     await executeCommand(`git add -N .`);
+    await mkdir('.appmap', {recursive: true});
     await executeCommand(`git diff > ${patchFileName}`);
     const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);

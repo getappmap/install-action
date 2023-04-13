@@ -12,6 +12,7 @@ export default async function run(
     if (propertyValue) (installer as any)[propertyName] = propertyValue;
   }
 
+  await installer.ignoreDotAppmap();
   await installer.installAppMapTools();
   await installer.installAppMapLibrary();
   const patch = await installer.buildPatchFile();
