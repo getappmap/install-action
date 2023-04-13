@@ -154,8 +154,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const promises_1 = __nccwpck_require__(3292);
+const node_fetch_1 = __importDefault(__nccwpck_require__(467));
 const os_1 = __nccwpck_require__(2037);
 const path_1 = __nccwpck_require__(1017);
 const downloadFile_1 = __nccwpck_require__(8195);
@@ -177,7 +181,20 @@ class Installer {
     }
     installAppMapTools() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield (0, downloadFile_1.downloadFile)(new URL(this.appmapToolsURL), this.appmapToolsPath);
+            let preflightReleaseURL = this.appmapToolsURL;
+            let page = 1;
+            while (!preflightReleaseURL) {
+                const releases = yield (yield (0, node_fetch_1.default)(`https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`, {
+                    headers: { Accept: 'application/vnd.github+json' },
+                })).json();
+                if (releases.length === 0)
+                    break;
+                page += 1;
+                preflightReleaseURL = releases.find((release) => release.name.startsWith('@appland/appmap-preflight'));
+            }
+            if (!preflightReleaseURL)
+                throw new Error('Could not find @appland/appmap-preflight release');
+            yield (0, downloadFile_1.downloadFile)(new URL(preflightReleaseURL), this.appmapToolsPath);
             yield (0, promises_1.chmod)(this.appmapToolsPath, 0o755);
             (0, log_1.default)(log_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
         });
