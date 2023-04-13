@@ -1,4 +1,4 @@
-import {chmod, readFile, writeFile} from 'fs/promises';
+import {chmod, mkdir, readFile, writeFile} from 'fs/promises';
 import {tmpdir} from 'os';
 import {join} from 'path';
 import {downloadFile} from './downloadFile';
@@ -14,6 +14,32 @@ export default class Installer {
 
   constructor(public appmapToolsURL: string) {
     this.appmapToolsPath = join(tmpdir(), 'appmap');
+  }
+
+  async ignoreDotAppmap() {
+    let gitignore: string[];
+    try {
+      gitignore = (await readFile('.gitignore', 'utf8')).split('\n');
+    } catch {
+      log(LogLevel.Info, `Project has no .gitignore file. Initializing an empty one.`);
+      gitignore = [];
+    }
+    if (!gitignore.includes('/.appmap')) {
+      log(LogLevel.Info, `Adding .appmap to .gitignore`);
+      gitignore.push('');
+      gitignore.push('# Ignore AppMap archives and working files');
+      gitignore.push('/.appmap');
+      gitignore.push('');
+      await writeFile('.gitignore', gitignore.join('\n'));
+      await executeCommand('git add .gitignore');
+      await executeCommand(
+        `git commit -c user.email='${
+          process.env.GITHUB_ACTOR || 'github-action'
+        }@users.noreply.github.com' -c user.name='${
+          process.env.GITHUB_ACTOR || 'github-action'
+        }' -m 'Ignore AppMap archives and working files'`
+      );
+    }
   }
 
   async installAppMapTools() {
@@ -37,8 +63,9 @@ export default class Installer {
   }
 
   async buildPatchFile(): Promise<{filename: string; contents: string}> {
-    const patchFileName = join(tmpdir(), 'appmap-install.patch');
+    const patchFileName = join('.appmap', 'appmap-install.patch');
     await executeCommand(`git add -N .`);
+    await mkdir('.appmap', {recursive: true});
     await executeCommand(`git diff > ${patchFileName}`);
     const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);

@@ -166,6 +166,15 @@ class Installer {
         this.appmapToolsURL = appmapToolsURL;
         this.appmapToolsPath = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap');
     }
+    ignoreDotAppmap() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const gitignore = (yield (0, promises_1.readFile)('.gitignore', 'utf8')).split('\n');
+            if (!gitignore.includes('.appmap')) {
+                (0, log_1.default)(log_1.LogLevel.Info, `Adding .appmap to .gitignore`);
+                yield (0, promises_1.writeFile)('.gitignore', [gitignore, '.appmap'].join('\n'));
+            }
+        });
+    }
     installAppMapTools() {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, downloadFile_1.downloadFile)(new URL(this.appmapToolsURL), this.appmapToolsPath);
@@ -192,8 +201,9 @@ class Installer {
     }
     buildPatchFile() {
         return __awaiter(this, void 0, void 0, function* () {
-            const patchFileName = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap-install.patch');
+            const patchFileName = (0, path_1.join)('.appmap', 'appmap-install.patch');
             yield (0, executeCommand_1.executeCommand)(`git add -N .`);
+            yield (0, promises_1.mkdir)('.appmap', { recursive: true });
             yield (0, executeCommand_1.executeCommand)(`git diff > ${patchFileName}`);
             const patch = yield (0, promises_1.readFile)(patchFileName, 'utf8');
             (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
@@ -537,6 +547,7 @@ function run(artifactStore, options) {
             if (propertyValue)
                 installer[propertyName] = propertyValue;
         }
+        yield installer.ignoreDotAppmap();
         yield installer.installAppMapTools();
         yield installer.installAppMapLibrary();
         const patch = yield installer.buildPatchFile();
