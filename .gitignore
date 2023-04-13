@@ -10,6 +10,3 @@ tmp
 # Files created when testing this action on itself.
 test/fixture/appmap.yml
 patch
-
-# AppMap archive
-# .appmap
