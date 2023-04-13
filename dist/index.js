@@ -190,10 +190,14 @@ class Installer {
                 if (releases.length === 0)
                     break;
                 page += 1;
-                preflightReleaseURL = releases.find((release) => release.name.startsWith('@appland/appmap-preflight'));
+                const release = releases.find((release) => release.name.startsWith('@appland/appmap-preflight'));
+                if (release) {
+                    preflightReleaseURL = release.assets.find((asset) => asset.name === 'appmap-preflight-linux-x64').browser_download_url;
+                }
             }
             if (!preflightReleaseURL)
                 throw new Error('Could not find @appland/appmap-preflight release');
+            (0, log_1.default)(log_1.LogLevel.Info, `Installing AppMap tools from ${preflightReleaseURL}`);
             yield (0, downloadFile_1.downloadFile)(new URL(preflightReleaseURL), this.appmapToolsPath);
             yield (0, promises_1.chmod)(this.appmapToolsPath, 0o755);
             (0, log_1.default)(log_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
