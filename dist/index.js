@@ -188,7 +188,7 @@ class Installer {
                 gitignore.push('');
                 yield (0, promises_1.writeFile)('.gitignore', gitignore.join('\n'));
                 yield (0, executeCommand_1.executeCommand)('git add .gitignore');
-                yield (0, executeCommand_1.executeCommand)(`git commit -c user.email='${process.env.GITHUB_ACTOR || 'github-action'}@users.noreply.github.com' -c user.name='${process.env.GITHUB_ACTOR || 'github-action'}' -m 'Ignore AppMap archives and working files'`);
+                yield (0, executeCommand_1.executeCommand)(`git -c "user.email=${process.env.GITHUB_ACTOR || 'github-action'}@users.noreply.github.com" -c "user.name=${process.env.GITHUB_ACTOR || 'github-action'}" commit -m 'Ignore AppMap archives and working files'`);
             }
         });
     }
