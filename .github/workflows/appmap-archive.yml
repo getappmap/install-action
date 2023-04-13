@@ -1,10 +1,9 @@
+name: Archive AppMaps on PR merge
+
 on:
   pull_request:
     types:
       - closed
-  schedule:
-    # Keep the artifact up to date, as it will expire after 90 days.
-    - cron: 1 1 1 * *
 
 env:
   APPMAP_TELEMETRY_DISABLED: 'true'
@@ -20,13 +19,11 @@ jobs:
         run: yarn install
       - name: Install and configure AppMap tools
         uses: ./
-        id: appmap-install
         with:
           verbose: true
       - name: Build AppMaps
         run: yarn appmap
       - name: Archive AppMaps
-        uses: getappmap/archive-appmap-action@v1-pre.8
-        id: appmap-archive
+        uses: getappmap/archive-appmap-action@v1-pre.10
         with:
           verbose: true
