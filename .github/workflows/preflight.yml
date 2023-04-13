@@ -23,6 +23,7 @@ jobs:
         id: appmap-install
         uses: ./
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
       - name: Build
         run: yarn build
