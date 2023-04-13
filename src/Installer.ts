@@ -1,6 +1,7 @@
 import {chmod, mkdir, readFile, writeFile} from 'fs/promises';
 import fetch from 'node-fetch';
 import {tmpdir} from 'os';
+import * as os from 'os';
 import {join} from 'path';
 import {downloadFile} from './downloadFile';
 import {executeCommand} from './executeCommand';
@@ -12,6 +13,7 @@ export default class Installer {
   public projectType?: string;
   public installerName?: string;
   public buildFile?: string;
+  public githubToken?: string;
 
   constructor(public appmapToolsURL?: string) {
     this.appmapToolsPath = join(tmpdir(), 'appmap');
@@ -47,23 +49,53 @@ export default class Installer {
     let preflightReleaseURL = this.appmapToolsURL;
     let page = 1;
     while (!preflightReleaseURL) {
-      const releases = await (
-        await fetch(
-          `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`,
-          {
-            headers: {Accept: 'application/vnd.github+json'},
-          }
-        )
-      ).json();
+      const url = `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`;
+      log(LogLevel.Debug, `Enumerating appmap-js releases: ${url}`);
+      const headers: Record<string, string> = {
+        Accept: 'application/vnd.github+json',
+      };
+      if (this.githubToken) headers['Authorization'] = `Bearer ${this.githubToken}`;
+      const response = await fetch(url, {
+        headers,
+      });
+      if (response.status === 403) {
+        let message: string;
+        try {
+          message = (await response.json()).message;
+        } catch (e) {
+          log(LogLevel.Warn, (e as Error).toString());
+          message = 'GitHub API rate limit exceeded.';
+        }
+        log(LogLevel.Info, message);
+        log(LogLevel.Info, `Waiting for 3 seconds.`);
+        log(
+          LogLevel.Info,
+          `You can avoid the rate limit by setting 'github-token: \${{ secrets.GITHUB_TOKEN }}'`
+        );
+        await new Promise(resolve => setTimeout(resolve, 3 * 1000));
+        continue;
+      } else if (response.status > 400) {
+        throw new Error(`GitHub API returned ${response.status} ${response.statusText}`);
+      }
+
+      const releases = await response.json();
       if (releases.length === 0) break;
 
       page += 1;
       const release = releases.find((release: any) =>
         release.name.startsWith('@appland/appmap-preflight')
       );
+
       if (release) {
+        const platform = [os.platform() === 'darwin' ? 'macos' : os.platform(), os.arch()].join(
+          '-'
+        );
+        log(
+          LogLevel.Info,
+          `Using @appland/appmap-preflight release ${release.name} for ${platform}`
+        );
         preflightReleaseURL = release.assets.find(
-          (asset: any) => asset.name === 'appmap-preflight-linux-x64'
+          (asset: any) => asset.name === `appmap-preflight-${platform}`
         ).browser_download_url;
       }
     }
