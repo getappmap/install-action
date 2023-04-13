@@ -27,6 +27,7 @@ export async function runInGitHub(): Promise<void> {
     buildFile: core.getInput('build-file'),
     installerName: core.getInput('installer-name'),
     toolsUrl: core.getInput('tools-url'),
+    githubToken: core.getInput('github-token'),
   });
 }
 
@@ -42,6 +43,7 @@ async function runLocally() {
   parser.add_argument('--project-type');
   parser.add_argument('--build-file');
   parser.add_argument('--installer-name');
+  parser.add_argument('--github-token');
 
   const options = parser.parse_args();
 
@@ -56,6 +58,7 @@ async function runLocally() {
     projectType: options.project_type,
     buildFile: options.build_file,
     installerName: options.installer_name,
+    githubToken: options.github_token || process.env.GITHUB_TOKEN,
     toolsUrl: options.tools_url,
   });
 }

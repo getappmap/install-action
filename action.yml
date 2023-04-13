@@ -19,6 +19,10 @@ inputs:
   tools-url:
     description:
       URL to the AppMap tools. By default, the latest version will be downloaded and installed.
+  github-token:
+    description: |
+      The GitHub token to use with the GitHub API to enumerate AppMap Tools releases.
+      Most commonly, you'll use `secrets.GITHUB_TOKEN`, which is automatically provided by GitHub.
   verbose:
     description: Enable verbose logging.
     default: false

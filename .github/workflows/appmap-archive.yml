@@ -20,6 +20,7 @@ jobs:
       - name: Install and configure AppMap tools
         uses: ./
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
       - name: Build AppMaps
         run: yarn appmap

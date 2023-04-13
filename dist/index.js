@@ -161,6 +161,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const promises_1 = __nccwpck_require__(3292);
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
 const os_1 = __nccwpck_require__(2037);
+const os = __importStar(__nccwpck_require__(2037));
 const path_1 = __nccwpck_require__(1017);
 const downloadFile_1 = __nccwpck_require__(8195);
 const executeCommand_1 = __nccwpck_require__(3285);
@@ -197,15 +198,43 @@ class Installer {
             let preflightReleaseURL = this.appmapToolsURL;
             let page = 1;
             while (!preflightReleaseURL) {
-                const releases = yield (yield (0, node_fetch_1.default)(`https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`, {
-                    headers: { Accept: 'application/vnd.github+json' },
-                })).json();
+                const url = `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`;
+                (0, log_1.default)(log_1.LogLevel.Debug, `Enumerating appmap-js releases: ${url}`);
+                const headers = {
+                    Accept: 'application/vnd.github+json',
+                };
+                if (this.githubToken)
+                    headers['Authorization'] = `Bearer ${this.githubToken}`;
+                const response = yield (0, node_fetch_1.default)(url, {
+                    headers,
+                });
+                if (response.status === 403) {
+                    let message;
+                    try {
+                        message = (yield response.json()).message;
+                    }
+                    catch (e) {
+                        (0, log_1.default)(log_1.LogLevel.Warn, e.toString());
+                        message = 'GitHub API rate limit exceeded.';
+                    }
+                    (0, log_1.default)(log_1.LogLevel.Info, message);
+                    (0, log_1.default)(log_1.LogLevel.Info, `Waiting for 3 seconds.`);
+                    (0, log_1.default)(log_1.LogLevel.Info, `You can avoid the rate limit by setting 'github-token: \${{ secrets.GITHUB_TOKEN }}'`);
+                    yield new Promise(resolve => setTimeout(resolve, 3 * 1000));
+                    continue;
+                }
+                else if (response.status > 400) {
+                    throw new Error(`GitHub API returned ${response.status} ${response.statusText}`);
+                }
+                const releases = yield response.json();
                 if (releases.length === 0)
                     break;
                 page += 1;
                 const release = releases.find((release) => release.name.startsWith('@appland/appmap-preflight'));
                 if (release) {
-                    preflightReleaseURL = release.assets.find((asset) => asset.name === 'appmap-preflight-linux-x64').browser_download_url;
+                    const platform = [os.platform() === 'darwin' ? 'macos' : os.platform(), os.arch()].join('-');
+                    (0, log_1.default)(log_1.LogLevel.Info, `Using @appland/appmap-preflight release ${release.name} for ${platform}`);
+                    preflightReleaseURL = release.assets.find((asset) => asset.name === `appmap-preflight-${platform}`).browser_download_url;
                 }
             }
             if (!preflightReleaseURL)
@@ -439,6 +468,7 @@ function runInGitHub() {
             buildFile: core.getInput('build-file'),
             installerName: core.getInput('installer-name'),
             toolsUrl: core.getInput('tools-url'),
+            githubToken: core.getInput('github-token'),
         });
     });
 }
@@ -456,6 +486,7 @@ function runLocally() {
         parser.add_argument('--project-type');
         parser.add_argument('--build-file');
         parser.add_argument('--installer-name');
+        parser.add_argument('--github-token');
         const options = parser.parse_args();
         (0, verbose_1.default)(options.verbose === 'true' || options.verbose === true);
         const directory = options.directory;
@@ -468,6 +499,7 @@ function runLocally() {
             projectType: options.project_type,
             buildFile: options.build_file,
             installerName: options.installer_name,
+            githubToken: options.github_token || process.env.GITHUB_TOKEN,
             toolsUrl: options.tools_url,
         });
     });
