@@ -23,6 +23,22 @@ inputs:
     description: |
       The GitHub token to use with the GitHub API to enumerate AppMap Tools releases.
       Most commonly, you'll use `secrets.GITHUB_TOKEN`, which is automatically provided by GitHub.
+  ignore-dot-appmap:
+    description: |
+      Add the .appmap directory to .gitignore, if it's not already present.
+    default: true
+  install-appmap-tools:
+    description: |
+      Install the AppMap command-line tools.
+    default: true
+  install-appmap-library:
+    description: |
+      Install the and configure the AppMap language library.
+    default: true
+  build-patch-file:
+    description: |
+      Create a patch file of changes made by the installer.
+    default: true
   verbose:
     description: Enable verbose logging.
     default: false

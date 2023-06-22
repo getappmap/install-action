@@ -167,9 +167,9 @@ const downloadFile_1 = __nccwpck_require__(8195);
 const executeCommand_1 = __nccwpck_require__(3285);
 const log_1 = __importStar(__nccwpck_require__(1285));
 class Installer {
-    constructor(appmapToolsURL) {
+    constructor(appmapToolsURL, appmapToolsPath) {
         this.appmapToolsURL = appmapToolsURL;
-        this.appmapToolsPath = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap');
+        this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
     }
     ignoreDotAppmap() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -188,8 +188,6 @@ class Installer {
                 gitignore.push('/.appmap');
                 gitignore.push('');
                 yield (0, promises_1.writeFile)('.gitignore', gitignore.join('\n'));
-                yield (0, executeCommand_1.executeCommand)('git add .gitignore');
-                yield (0, executeCommand_1.executeCommand)(`git -c "user.email=${process.env.GITHUB_ACTOR || 'github-action'}@users.noreply.github.com" -c "user.name=${process.env.GITHUB_ACTOR || 'github-action'}" commit -m 'Ignore AppMap archives and working files'`);
             }
         });
     }
@@ -240,7 +238,14 @@ class Installer {
             if (!preflightReleaseURL)
                 throw new Error('Could not find @appland/appmap-preflight release');
             (0, log_1.default)(log_1.LogLevel.Info, `Installing AppMap tools from ${preflightReleaseURL}`);
-            yield (0, downloadFile_1.downloadFile)(new URL(preflightReleaseURL), this.appmapToolsPath);
+            const appmapTempPath = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap');
+            yield (0, downloadFile_1.downloadFile)(new URL(preflightReleaseURL), appmapTempPath);
+            try {
+                yield (0, executeCommand_1.executeCommand)(`mv ${appmapTempPath} ${this.appmapToolsPath}`);
+            }
+            catch (e) {
+                yield (0, executeCommand_1.executeCommand)(`sudo mv ${appmapTempPath} ${this.appmapToolsPath}`);
+            }
             yield (0, promises_1.chmod)(this.appmapToolsPath, 0o755);
             (0, log_1.default)(log_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
         });
@@ -385,8 +390,10 @@ function executeCommand(cmd, printCommand = (0, verbose_1.default)(), printStdou
         });
     }
     return new Promise((resolve, reject) => {
-        command.addListener('exit', code => {
-            if (code === 0) {
+        command.addListener('exit', (code, signal) => {
+            if (signal || code === 0) {
+                if (signal)
+                    (0, log_1.default)(log_1.LogLevel.Info, `Command killed by signal ${signal}`);
                 resolve(result.join(''));
             }
             else {
@@ -469,6 +476,10 @@ function runInGitHub() {
             installerName: core.getInput('installer-name'),
             toolsUrl: core.getInput('tools-url'),
             githubToken: core.getInput('github-token'),
+            ignoreDotAppMap: core.getBooleanInput('ignore-dot-appmap'),
+            installAppMapTools: core.getBooleanInput('install-appmap-tools'),
+            installAppMapLibrary: core.getBooleanInput('install-appmap-library'),
+            buildPatchFile: core.getBooleanInput('build-patch-file'),
         });
     });
 }
@@ -487,6 +498,10 @@ function runLocally() {
         parser.add_argument('--build-file');
         parser.add_argument('--installer-name');
         parser.add_argument('--github-token');
+        parser.add_argument('--ignore-dot-appmap', { default: true });
+        parser.add_argument('--install-appmap-tools', { default: true });
+        parser.add_argument('--install-appmap-library', { default: true });
+        parser.add_argument('--build-patch-file', { default: true });
         const options = parser.parse_args();
         (0, verbose_1.default)(options.verbose === 'true' || options.verbose === true);
         const directory = options.directory;
@@ -501,6 +516,10 @@ function runLocally() {
             installerName: options.installer_name,
             githubToken: options.github_token || process.env.GITHUB_TOKEN,
             toolsUrl: options.tools_url,
+            ignoreDotAppMap: options.ignore_dot_appmap,
+            installAppMapTools: options.install_appmap_tools,
+            installAppMapLibrary: options.install_appmap_library,
+            buildPatchFile: options.build_patch_file,
         });
     });
 }
@@ -599,19 +618,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const Installer_1 = __importDefault(__nccwpck_require__(3927));
+const INSTALLER_OPTIONS = [
+    'appmapConfig',
+    'appmapToolsPath',
+    'projectType',
+    'installerName',
+    'githubToken',
+    'buildFile',
+];
 function run(artifactStore, options) {
     return __awaiter(this, void 0, void 0, function* () {
         const installer = new Installer_1.default(options.toolsUrl);
         for (const [propertyName, propertyValue] of Object.entries(options)) {
+            if (!INSTALLER_OPTIONS.includes(propertyName))
+                continue;
             if (propertyValue)
                 installer[propertyName] = propertyValue;
         }
-        yield installer.ignoreDotAppmap();
-        yield installer.installAppMapTools();
-        yield installer.installAppMapLibrary();
-        const patch = yield installer.buildPatchFile();
-        if (patch.contents.length > 0) {
-            yield artifactStore.uploadArtifact('appmap-install.patch', [patch.filename]);
+        if (options.ignoreDotAppMap !== false)
+            yield installer.ignoreDotAppmap();
+        if (options.installAppMapTools !== false)
+            yield installer.installAppMapTools();
+        if (options.installAppMapLibrary !== false)
+            yield installer.installAppMapLibrary();
+        if (options.buildPatchFile !== false) {
+            const patch = yield installer.buildPatchFile();
+            if (patch.contents.length > 0) {
+                yield artifactStore.uploadArtifact('appmap-install.patch', [patch.filename]);
+            }
         }
     });
 }

@@ -25,13 +25,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           verbose: true
+      - name: Commit AppMap configuration changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          add: .
+          message: 'chore: Update AppMap installation'
       - name: Build
         run: yarn build
       - name: Make AppMaps
         run: yarn appmap || true
       - name: Preflight
         id: appmap-preflight
-        uses: getappmap/preflight-appmap-action@v1-pre.6
+        uses: getappmap/analyze-action@v1-pre.13
         with:
           base-revision: ${{ github.event.pull_request.base.sha }}
           head-revision: ${{ github.event.pull_request.head.sha }}

@@ -25,6 +25,6 @@ jobs:
       - name: Build AppMaps
         run: yarn appmap
       - name: Archive AppMaps
-        uses: getappmap/archive-appmap-action@v1-pre.10
+        uses: getappmap/archive-action@v1-pre.13
         with:
           verbose: true
