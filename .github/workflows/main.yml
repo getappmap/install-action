@@ -1,6 +1,9 @@
 name: Main
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types: [opened, synchronize, reopened, closed]
   schedule:
@@ -13,13 +16,16 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        if: ${{ github.event.pull_request.head.ref != '' }}
         with:
           # This is needed to see the version history, because
           # checkout action doesn't fetch the base or head branches
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+
+      - uses: actions/checkout@v3
+        if: ${{ github.event.pull_request.head.ref == '' }}
 
       - name: Install dependency libraries
         run: yarn install
