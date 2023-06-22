@@ -5,4 +5,8 @@ export interface CommandOptions {
   githubToken?: string;
   buildFile?: string;
   installerName?: string;
+  ignoreDotAppMap?: boolean;
+  installAppMapTools?: boolean;
+  installAppMapLibrary?: boolean;
+  buildPatchFile?: boolean;
 }

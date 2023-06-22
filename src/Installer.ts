@@ -15,8 +15,8 @@ export default class Installer {
   public buildFile?: string;
   public githubToken?: string;
 
-  constructor(public appmapToolsURL?: string) {
-    this.appmapToolsPath = join(tmpdir(), 'appmap');
+  constructor(public appmapToolsURL?: string, appmapToolsPath?: string) {
+    this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
   }
 
   async ignoreDotAppmap() {
@@ -34,14 +34,6 @@ export default class Installer {
       gitignore.push('/.appmap');
       gitignore.push('');
       await writeFile('.gitignore', gitignore.join('\n'));
-      await executeCommand('git add .gitignore');
-      await executeCommand(
-        `git -c "user.email=${
-          process.env.GITHUB_ACTOR || 'github-action'
-        }@users.noreply.github.com" -c "user.name=${
-          process.env.GITHUB_ACTOR || 'github-action'
-        }" commit -m 'Ignore AppMap archives and working files'`
-      );
     }
   }
 
@@ -103,8 +95,15 @@ export default class Installer {
     if (!preflightReleaseURL) throw new Error('Could not find @appland/appmap-preflight release');
 
     log(LogLevel.Info, `Installing AppMap tools from ${preflightReleaseURL}`);
-    await downloadFile(new URL(preflightReleaseURL), this.appmapToolsPath);
+    const appmapTempPath = join(tmpdir(), 'appmap');
+    await downloadFile(new URL(preflightReleaseURL), appmapTempPath);
+    try {
+      await executeCommand(`mv ${appmapTempPath} ${this.appmapToolsPath}`);
+    } catch (e) {
+      await executeCommand(`sudo mv ${appmapTempPath} ${this.appmapToolsPath}`);
+    }
     await chmod(this.appmapToolsPath, 0o755);
+
     log(LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
   }
 

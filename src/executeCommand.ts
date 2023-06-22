@@ -25,8 +25,9 @@ export function executeCommand(
     });
   }
   return new Promise<string>((resolve, reject) => {
-    command.addListener('exit', code => {
-      if (code === 0) {
+    command.addListener('exit', (code, signal) => {
+      if (signal || code === 0) {
+        if (signal) log(LogLevel.Info, `Command killed by signal ${signal}`);
         resolve(result.join(''));
       } else {
         if (!printCommand) log(LogLevel.Warn, cmd);

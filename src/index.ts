@@ -1,11 +1,7 @@
 import * as core from '@actions/core';
-import * as artifact from '@actions/artifact';
 import Installer from './Installer';
 import verbose from './verbose';
 import {ArgumentParser} from 'argparse';
-import {parse} from 'yaml';
-import {readFile} from 'fs/promises';
-import {join} from 'path';
 import assert from 'assert';
 import run from './run';
 import {GitHubArtifactStore} from './GitHubArtifactStore';
@@ -28,6 +24,10 @@ export async function runInGitHub(): Promise<void> {
     installerName: core.getInput('installer-name'),
     toolsUrl: core.getInput('tools-url'),
     githubToken: core.getInput('github-token'),
+    ignoreDotAppMap: core.getBooleanInput('ignore-dot-appmap'),
+    installAppMapTools: core.getBooleanInput('install-appmap-tools'),
+    installAppMapLibrary: core.getBooleanInput('install-appmap-library'),
+    buildPatchFile: core.getBooleanInput('build-patch-file'),
   });
 }
 
@@ -44,6 +44,10 @@ async function runLocally() {
   parser.add_argument('--build-file');
   parser.add_argument('--installer-name');
   parser.add_argument('--github-token');
+  parser.add_argument('--ignore-dot-appmap', {default: true});
+  parser.add_argument('--install-appmap-tools', {default: true});
+  parser.add_argument('--install-appmap-library', {default: true});
+  parser.add_argument('--build-patch-file', {default: true});
 
   const options = parser.parse_args();
 
@@ -60,6 +64,10 @@ async function runLocally() {
     installerName: options.installer_name,
     githubToken: options.github_token || process.env.GITHUB_TOKEN,
     toolsUrl: options.tools_url,
+    ignoreDotAppMap: options.ignore_dot_appmap,
+    installAppMapTools: options.install_appmap_tools,
+    installAppMapLibrary: options.install_appmap_library,
+    buildPatchFile: options.build_patch_file,
   });
 }
 
