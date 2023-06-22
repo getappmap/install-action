@@ -45,10 +45,10 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@appland/appmap-agent-js@^13.7.0":
-  version "13.7.0"
-  resolved "https://registry.yarnpkg.com/@appland/appmap-agent-js/-/appmap-agent-js-13.7.0.tgz#c86d5874569ebf979f218720c8aabfd6cda5304a"
-  integrity sha512-bq0DuYWi/Qf0C02U83U9r9N1cjCi1qLX/8jxd4iTwQJ/vp9uHdvw8njZ/iknlFiCMv7N2hYFTSylorR8kubdtw==
+"@appland/appmap-agent-js@^13.9.0":
+  version "13.9.0"
+  resolved "https://registry.yarnpkg.com/@appland/appmap-agent-js/-/appmap-agent-js-13.9.0.tgz#80ffe6ced5eb773ea5a37c0fc236cc8679e1a4ff"
+  integrity sha512-QOx1JnWl0xk2sZP8qSVz1bfWipjQ0doBJRGZuk5TqILwoebEY2VAm07s6t7Sx8jiJNQbMBG+A3yudTgf1/Wyhw==
   dependencies:
     "@appland/appmap-validate" "^2.3.0"
     "@babel/parser" "^7.15.8"
