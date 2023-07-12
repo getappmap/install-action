@@ -42,13 +42,13 @@ jobs:
         run: yarn appmap
 
       - name: Archive AppMaps
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event.pull_request.base.sha == '' }}
         uses: getappmap/archive-action@v1-pre.13
         with:
           verbose: true
 
       - name: Analyze AppMaps
-        if: (success() || failure()) && ${{ github.event_name == 'pull_request' }}
+        if: (success() || failure()) && ${{ github.event.pull_request.base.sha != '' }}
         uses: getappmap/analyze-action@v1-pre.13
         with:
           base-revision: ${{ github.event.pull_request.base.sha }}
