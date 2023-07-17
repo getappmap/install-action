@@ -25,7 +25,7 @@ async function restoreFixtureFiles() {
 
 if (process.env.VERBOSE) verbose(true);
 
-describe('install-appmap-action', () => {
+describe('install-action', () => {
   let installer: Installer;
 
   beforeEach(() => mkdir('tmp', {recursive: true}));
