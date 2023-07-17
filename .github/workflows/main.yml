@@ -1,13 +1,12 @@
 name: Main
 
 on:
+  pull_request:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened]
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * 0'
 
 env:
   APPMAP_TELEMETRY_DISABLED: 'true'
@@ -26,6 +25,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          project-type: yarn
           verbose: true
 
       - name: Commit AppMap configuration changes
@@ -35,23 +35,26 @@ jobs:
           message: 'chore: Update AppMap installation'
 
       - name: Build
-        run: yarn build
+        run: yarn package
 
       - name: Test
         id: test
         run: yarn appmap
 
-      - name: Archive AppMaps
-        if: ${{ github.event.pull_request.base.sha == '' }}
-        uses: getappmap/archive-action@v1-pre.13
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v7
         with:
-          verbose: true
+          add: dist
+          message: 'chore: Packaged distribution of the GitHub action'
+
+      - name: Archive AppMaps
+        if: github.event_name != 'pull_request'
+        uses: getappmap/archive-action@v1-pre.13
 
       - name: Analyze AppMaps
-        if: (success() || failure()) && ${{ github.event.pull_request.base.sha != '' }}
-        uses: getappmap/analyze-action@v1-pre.13
+        if: ( success() || failure() ) && github.event_name == 'pull_request'
+        uses: getappmap/analyze-action@v1-pre.14
         with:
           base-revision: ${{ github.event.pull_request.base.sha }}
           head-revision: ${{ github.event.pull_request.head.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          verbose: true
