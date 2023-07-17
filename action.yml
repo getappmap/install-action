@@ -2,6 +2,9 @@ name: Install and configure AppMap
 description:
   Installs AppMap tools and the AppMap language library, and configures AppMap options for the
   project.
+branding:
+  icon: download
+  color: purple
 inputs:
   appmap-config:
     description: appmap.yml configuration contents.
