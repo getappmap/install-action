@@ -32,6 +32,7 @@ describe('install-action', () => {
   beforeEach(() => process.chdir(join(__dirname, 'fixture', 'app')));
   beforeEach(() => {
     installer = new Installer(appmapToolsURL);
+    installer.projectType = 'dummy-project-type';
     installer.appmapToolsPath = join(__dirname, '..', 'tmp', 'appmap-tools');
     installer.appmapConfig = appmapConfig;
   });
@@ -44,7 +45,7 @@ describe('install-action', () => {
     const patch = await installer.buildPatchFile();
 
     expect((await readFile('install.log', 'utf8')).trim()).toEqual(
-      'install --no-interactive --no-overwrite-appmap-config'
+      'install --no-interactive --no-overwrite-appmap-config --project-type dummy-project-type'
     );
     expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
     expect(patch.contents).toMatch(/\+install --no-interactive/);

@@ -6,6 +6,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
     "test": "jest",
     "appmap": "appmap-agent-js -- jest --no-cache",
     "clean": "rm -rf build dist tmp",
