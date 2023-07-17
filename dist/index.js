@@ -253,6 +253,8 @@ class Installer {
     }
     installAppMapLibrary() {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.projectType)
+                throw new Error('project-type is required when install-appmap-library is true');
             if (this.appmapConfig) {
                 (0, log_1.default)(log_1.LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
                 yield (0, promises_1.writeFile)('appmap.yml', this.appmapConfig);

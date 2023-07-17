@@ -109,10 +109,14 @@ export default class Installer {
   }
 
   async installAppMapLibrary() {
+    if (!this.projectType)
+      throw new Error('project-type is required when install-appmap-library is true');
+
     if (this.appmapConfig) {
       log(LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
       await writeFile('appmap.yml', this.appmapConfig);
     }
+
     let cmd = `${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`;
     if (this.projectType) cmd += ` --project-type ${this.projectType}`;
     if (this.buildFile) cmd += ` --build-file ${this.buildFile}`;
