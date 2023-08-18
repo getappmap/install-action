@@ -2,7 +2,7 @@
 
 To see a step-by-step example of how to install this action into your software project, [review the official AppMap Documentation](http://appmap.io/docs/analysis/in-github-actions).
 
-GitHub action to install AppMap.
+This is a GitHub action to install and configure AppMap. It will do the following things:
 
 - Install the AppMap tools (CLI)
 - (Optional) Install the AppMap library for the language and build system (e.g. Java + Maven, Ruby + Bundler,
@@ -26,7 +26,7 @@ project are installed and available.
 
 ## Usage
 
-The AppMap CLI installer can automatically detect your project language type, but if your project has more than one language set the `project-type` to ensure the AppMap library is installed via the correct package manager.
+Set the `project-type` to ensure the AppMap library is installed via the correct package manager.
 
 ```
 - name: Install AppMap tools
@@ -38,7 +38,7 @@ The AppMap CLI installer can automatically detect your project language type, bu
 ```
 
 
-If your project alrady has the AppMap software libraries and configuration files installed, you can configure the action to skip the install of the libraries and only install the CLI tools which are required for later steps.
+If your project alrady has the AppMap software libraries and configuration files installed, use `install-appmap-library: false` to skip the install of the libraries and only install the CLI tools which are required for later steps:
 
 
 ```
