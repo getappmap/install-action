@@ -14,7 +14,7 @@
     "package": "yarn build && ncc build --source-map --license licenses.txt"
   },
   "devDependencies": {
-    "@appland/appmap-agent-js": "^13.9.0",
+    "@appland/appmap-agent-js": "^14.2.0",
     "@types/jest": "^29.5.0",
     "@types/node": "^18.15.11",
     "@types/node-fetch": "^2.6.3",

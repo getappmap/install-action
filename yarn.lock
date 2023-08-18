@@ -45,10 +45,10 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@appland/appmap-agent-js@^13.9.0":
-  version "13.9.0"
-  resolved "https://registry.yarnpkg.com/@appland/appmap-agent-js/-/appmap-agent-js-13.9.0.tgz#80ffe6ced5eb773ea5a37c0fc236cc8679e1a4ff"
-  integrity sha512-QOx1JnWl0xk2sZP8qSVz1bfWipjQ0doBJRGZuk5TqILwoebEY2VAm07s6t7Sx8jiJNQbMBG+A3yudTgf1/Wyhw==
+"@appland/appmap-agent-js@^14.2.0":
+  version "14.2.0"
+  resolved "https://registry.yarnpkg.com/@appland/appmap-agent-js/-/appmap-agent-js-14.2.0.tgz#154d31369f4baa83cb5f74ef1974ead928e62e18"
+  integrity sha512-I2ro2Y4iZNFwrd4e7bO3GxhgBuCwgqsbMeui8BDZtiE3elc1hSHasCTx3Pa2B2ZJ9dgM5BXl4oCb/p8nn5nqnA==
   dependencies:
     "@appland/appmap-validate" "^2.3.0"
     "@babel/parser" "^7.15.8"
@@ -56,6 +56,7 @@
     ajv-error-tree "0.0.5"
     astring "^1.8.4"
     chalk "^5.0.1"
+    fswin "^3.23.311"
     glob "^8.0.3"
     htmlparser2 "^8.0.1"
     klaw-sync "^6.0.0"
@@ -1577,6 +1578,11 @@ fsevents@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.2.tgz#8a526f78b8fdf4623b709e0b975c52c24c02fd1a"
   integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
+
+fswin@^3.23.311:
+  version "3.23.311"
+  resolved "https://registry.yarnpkg.com/fswin/-/fswin-3.23.311.tgz#4c5f1c7cad56d8e7640ce6da340e5be8424c6cde"
+  integrity sha512-MKiaXljyEA7D9AXP1X0bCsgn1b1PEIo0P9pHKsxz6BLXZFIpfY1jYs8biRaVWlDEFkK10E3jD99mwpUZhVVCkQ==
 
 function-bind@^1.1.1:
   version "1.1.1"
