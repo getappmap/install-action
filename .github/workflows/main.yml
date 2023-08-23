@@ -51,7 +51,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           tag: v1
-          tag_exists_error: false
+          force_push_tag: true
 
       - name: Archive AppMaps
         if: github.event_name != 'pull_request'
