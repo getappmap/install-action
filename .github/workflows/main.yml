@@ -41,18 +41,6 @@ jobs:
         id: test
         run: yarn appmap
 
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v7
-        with:
-          add: dist
-          message: 'chore: Packaged distribution of the GitHub action'
-
-      - uses: rickstaa/action-create-tag@v1
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        with:
-          tag: v1
-          force_push_tag: true
-
       - name: Archive AppMaps
         if: github.event_name != 'pull_request'
         uses: getappmap/archive-action@main
@@ -64,3 +52,17 @@ jobs:
           base-revision: ${{ github.event.pull_request.base.sha }}
           head-revision: ${{ github.event.pull_request.head.sha }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit changes
+        if: github.event_name == 'pull_request'
+        uses: EndBug/add-and-commit@v7
+        with:
+          add: dist
+          message: 'chore: Packaged distribution of the GitHub action'
+
+      - uses: rickstaa/action-create-tag@v1
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          tag: v1
+          force_push_tag: true
+
