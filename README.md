@@ -30,7 +30,7 @@ Set the `project-type` to ensure the AppMap library is installed via the correct
 
 ```
 - name: Install AppMap tools
-  uses: getappmap/install-action@v1.0
+  uses: getappmap/install-action@v1
   with:
     project-type: bundler # Choose the type of your project here:
                         # bundler, maven, gradle, pip, pipenv, poetry,
@@ -43,7 +43,7 @@ If your project alrady has the AppMap software libraries and configuration files
 
 ```
 - name: Install AppMap tools
-  uses: getappmap/install-action@v1.0
+  uses: getappmap/install-action@v1
   with:
     install-appmap-library: false
 ```
