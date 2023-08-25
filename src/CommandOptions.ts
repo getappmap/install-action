@@ -1,5 +1,6 @@
 export interface CommandOptions {
   toolsUrl: string;
+  toolsPath?: string;
   appmapConfig?: string;
   projectType?: string;
   githubToken?: string;

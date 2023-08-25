@@ -159,13 +159,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const promises_1 = __nccwpck_require__(3292);
-const node_fetch_1 = __importDefault(__nccwpck_require__(467));
-const os_1 = __nccwpck_require__(2037);
-const os = __importStar(__nccwpck_require__(2037));
+const os_1 = __importDefault(__nccwpck_require__(2037));
+const os_2 = __nccwpck_require__(2037);
 const path_1 = __nccwpck_require__(1017);
 const downloadFile_1 = __nccwpck_require__(8195);
 const executeCommand_1 = __nccwpck_require__(3285);
 const log_1 = __importStar(__nccwpck_require__(1285));
+const locateToolsRelease_1 = __importDefault(__nccwpck_require__(3462));
 class Installer {
     constructor(appmapToolsURL, appmapToolsPath) {
         this.appmapToolsURL = appmapToolsURL;
@@ -194,53 +194,13 @@ class Installer {
     }
     installAppMapTools() {
         return __awaiter(this, void 0, void 0, function* () {
-            let preflightReleaseURL = this.appmapToolsURL;
-            let page = 1;
-            while (!preflightReleaseURL) {
-                const url = `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`;
-                (0, log_1.default)(log_1.LogLevel.Debug, `Enumerating appmap-js releases: ${url}`);
-                const headers = {
-                    Accept: 'application/vnd.github+json',
-                };
-                if (this.githubToken)
-                    headers['Authorization'] = `Bearer ${this.githubToken}`;
-                const response = yield (0, node_fetch_1.default)(url, {
-                    headers,
-                });
-                if (response.status === 403) {
-                    let message;
-                    try {
-                        message = (yield response.json()).message;
-                    }
-                    catch (e) {
-                        (0, log_1.default)(log_1.LogLevel.Warn, e.toString());
-                        message = 'GitHub API rate limit exceeded.';
-                    }
-                    (0, log_1.default)(log_1.LogLevel.Info, message);
-                    (0, log_1.default)(log_1.LogLevel.Info, `Waiting for 3 seconds.`);
-                    (0, log_1.default)(log_1.LogLevel.Info, `You can avoid the rate limit by setting 'github-token: \${{ secrets.GITHUB_TOKEN }}'`);
-                    yield new Promise(resolve => setTimeout(resolve, 3 * 1000));
-                    continue;
-                }
-                else if (response.status > 400) {
-                    throw new Error(`GitHub API returned ${response.status} ${response.statusText}`);
-                }
-                const releases = yield response.json();
-                if (releases.length === 0)
-                    break;
-                page += 1;
-                const release = releases.find((release) => release.name.startsWith('@appland/appmap-preflight'));
-                if (release) {
-                    const platform = [os.platform() === 'darwin' ? 'macos' : os.platform(), os.arch()].join('-');
-                    (0, log_1.default)(log_1.LogLevel.Info, `Using @appland/appmap-preflight release ${release.name} for ${platform}`);
-                    preflightReleaseURL = release.assets.find((asset) => asset.name === `appmap-preflight-${platform}`).browser_download_url;
-                }
-            }
-            if (!preflightReleaseURL)
-                throw new Error('Could not find @appland/appmap-preflight release');
-            (0, log_1.default)(log_1.LogLevel.Info, `Installing AppMap tools from ${preflightReleaseURL}`);
-            const appmapTempPath = (0, path_1.join)((0, os_1.tmpdir)(), 'appmap');
-            yield (0, downloadFile_1.downloadFile)(new URL(preflightReleaseURL), appmapTempPath);
+            const platform = [os_1.default.platform() === 'darwin' ? 'macos' : os_1.default.platform(), os_1.default.arch()].join('-');
+            const toolsReleaseURL = this.appmapToolsURL || (yield (0, locateToolsRelease_1.default)(platform, this.githubToken));
+            if (!toolsReleaseURL)
+                throw new Error('Could not find @appland/appmap release');
+            (0, log_1.default)(log_1.LogLevel.Info, `Installing AppMap tools from ${toolsReleaseURL}`);
+            const appmapTempPath = (0, path_1.join)((0, os_2.tmpdir)(), 'appmap');
+            yield (0, downloadFile_1.downloadFile)(new URL(toolsReleaseURL), appmapTempPath);
             try {
                 yield (0, executeCommand_1.executeCommand)(`mv ${appmapTempPath} ${this.appmapToolsPath}`);
             }
@@ -497,6 +457,7 @@ function runLocally() {
         parser.add_argument('-d', '--directory', { help: 'Program working directory' });
         parser.add_argument('--artifact-dir', { default: '.appmap/artifacts' });
         parser.add_argument('--tools-url');
+        parser.add_argument('--tools-path');
         parser.add_argument('--appmap-config');
         parser.add_argument('--project-type');
         parser.add_argument('--build-file');
@@ -521,10 +482,11 @@ function runLocally() {
             installerName: options.installer_name,
             githubToken: options.github_token || process.env.GITHUB_TOKEN,
             toolsUrl: options.tools_url,
-            ignoreDotAppMap: options.ignore_dot_appmap,
-            installAppMapTools: options.install_appmap_tools,
-            installAppMapLibrary: options.install_appmap_library,
-            buildPatchFile: options.build_patch_file,
+            toolsPath: options.tools_path,
+            ignoreDotAppMap: options.ignore_dot_appmap !== 'false',
+            installAppMapTools: options.install_appmap_tools !== 'false',
+            installAppMapLibrary: options.install_appmap_library !== 'false',
+            buildPatchFile: options.build_patch_file !== 'false',
             diffPathSpec: options.diff_path_spec,
         });
     });
@@ -535,6 +497,100 @@ if (require.main === require.cache[eval('__filename')]) {
     else
         runLocally();
 }
+
+
+/***/ }),
+
+/***/ 3462:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const node_fetch_1 = __importDefault(__nccwpck_require__(467));
+const log_1 = __importStar(__nccwpck_require__(1285));
+function locateToolsRelease(platform, githubToken) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let result;
+        let page = 1;
+        while (!result) {
+            const url = `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`;
+            (0, log_1.default)(log_1.LogLevel.Debug, `Enumerating appmap-js releases: ${url}`);
+            const headers = {
+                Accept: 'application/vnd.github+json',
+            };
+            if (githubToken)
+                headers['Authorization'] = `Bearer ${githubToken}`;
+            const response = yield (0, node_fetch_1.default)(url, {
+                headers,
+            });
+            if (response.status === 403) {
+                let message;
+                try {
+                    message = (yield response.json()).message;
+                }
+                catch (e) {
+                    (0, log_1.default)(log_1.LogLevel.Warn, e.toString());
+                    message = 'GitHub API rate limit exceeded.';
+                }
+                (0, log_1.default)(log_1.LogLevel.Info, message);
+                (0, log_1.default)(log_1.LogLevel.Info, `Waiting for 3 seconds.`);
+                (0, log_1.default)(log_1.LogLevel.Info, `You can avoid the rate limit by setting 'github-token: \${{ secrets.GITHUB_TOKEN }}'`);
+                yield new Promise(resolve => setTimeout(resolve, 3 * 1000));
+                continue;
+            }
+            else if (response.status > 400) {
+                throw new Error(`GitHub API returned ${response.status} ${response.statusText}`);
+            }
+            const releases = yield response.json();
+            if (releases.length === 0)
+                break;
+            page += 1;
+            const release = releases.find((release) => /^@appland\/appmap-v\d+\./.test(release.name));
+            if (release) {
+                (0, log_1.default)(log_1.LogLevel.Info, `Using @appland/appmap release ${release.name} for ${platform}`);
+                result = release.assets.find((asset) => asset.name === `appmap-${platform}`).browser_download_url;
+            }
+        }
+        return result;
+    });
+}
+exports["default"] = locateToolsRelease;
 
 
 /***/ }),
@@ -634,7 +690,7 @@ const INSTALLER_OPTIONS = [
 ];
 function run(artifactStore, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const installer = new Installer_1.default(options.toolsUrl);
+        const installer = new Installer_1.default(options.toolsUrl, options.toolsPath);
         for (const [propertyName, propertyValue] of Object.entries(options)) {
             if (!INSTALLER_OPTIONS.includes(propertyName))
                 continue;
