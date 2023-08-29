@@ -40,6 +40,7 @@ async function runLocally() {
   parser.add_argument('-d', '--directory', {help: 'Program working directory'});
   parser.add_argument('--artifact-dir', {default: '.appmap/artifacts'});
   parser.add_argument('--tools-url');
+  parser.add_argument('--tools-path');
   parser.add_argument('--appmap-config');
   parser.add_argument('--project-type');
   parser.add_argument('--build-file');
@@ -66,10 +67,11 @@ async function runLocally() {
     installerName: options.installer_name,
     githubToken: options.github_token || process.env.GITHUB_TOKEN,
     toolsUrl: options.tools_url,
-    ignoreDotAppMap: options.ignore_dot_appmap,
-    installAppMapTools: options.install_appmap_tools,
-    installAppMapLibrary: options.install_appmap_library,
-    buildPatchFile: options.build_patch_file,
+    toolsPath: options.tools_path,
+    ignoreDotAppMap: options.ignore_dot_appmap !== 'false',
+    installAppMapTools: options.install_appmap_tools !== 'false',
+    installAppMapLibrary: options.install_appmap_library !== 'false',
+    buildPatchFile: options.build_patch_file !== 'false',
     diffPathSpec: options.diff_path_spec,
   });
 }
