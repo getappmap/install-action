@@ -451,7 +451,7 @@ exports.runInGitHub = runInGitHub;
 function runLocally() {
     return __awaiter(this, void 0, void 0, function* () {
         const parser = new argparse_1.ArgumentParser({
-            description: 'Preflight command',
+            description: 'AppMap Analysis command',
         });
         parser.add_argument('-v', '--verbose');
         parser.add_argument('-d', '--directory', { help: 'Program working directory' });
