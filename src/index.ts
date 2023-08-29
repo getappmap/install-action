@@ -34,7 +34,7 @@ export async function runInGitHub(): Promise<void> {
 
 async function runLocally() {
   const parser = new ArgumentParser({
-    description: 'Preflight command',
+    description: 'AppMap Analysis command',
   });
   parser.add_argument('-v', '--verbose');
   parser.add_argument('-d', '--directory', {help: 'Program working directory'});
