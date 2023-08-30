@@ -2,6 +2,8 @@ import {chmod, mkdir, readFile, writeFile} from 'fs/promises';
 import os from 'os';
 import {tmpdir} from 'os';
 import {join} from 'path';
+import {load} from 'js-yaml';
+
 import {downloadFile} from './downloadFile';
 import {executeCommand} from './executeCommand';
 import log, {LogLevel} from './log';
@@ -83,5 +85,28 @@ export default class Installer {
     const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);
     return {filename: patchFileName, contents: patch};
+  }
+
+  async verifyAppMapDir(expectedAppMapDir: string) {
+    const appmapDir = await this.detectAppMapDir();
+    if (appmapDir !== expectedAppMapDir) {
+      const msg = `Configured appmap_dir is ${appmapDir}, expected ${expectedAppMapDir}`;
+      log(LogLevel.Warn, msg);
+      throw new Error(msg);
+    }
+  }
+
+  async detectAppMapDir(): Promise<string> {
+    const appmapConfigData = await readFile('appmap.yml', 'utf8');
+    const appmapConfig = load(appmapConfigData) as any;
+    let result = appmapConfig.appmap_dir;
+    if (!result) {
+      log(
+        LogLevel.Warn,
+        `config.appmap_dir not found in appmap.yml, using default value tmp/appmap`
+      );
+      result = 'tmp/appmap';
+    }
+    return result;
   }
 }

@@ -16,6 +16,7 @@
   "devDependencies": {
     "@appland/appmap-agent-js": "^14.2.0",
     "@types/jest": "^29.5.0",
+    "@types/js-yaml": "^4.0.5",
     "@types/node": "^18.15.11",
     "@types/node-fetch": "^2.6.3",
     "@vercel/ncc": "^0.36.1",
@@ -32,6 +33,7 @@
     "@types/argparse": "^2.0.10",
     "@types/yaml": "^1.9.7",
     "argparse": "^2.0.1",
+    "js-yaml": "^4.1.0",
     "node-fetch": "^2",
     "yaml": "^2.2.1"
   },

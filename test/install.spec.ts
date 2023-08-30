@@ -8,6 +8,7 @@ const pwd = process.cwd();
 
 const appmapToolsURL = ['file://', join(__dirname, 'fixture', 'installer')].join('');
 const appmapConfig = `name: install-appmap-action-test
+appmap_dir: tmp/appmap
 `;
 const FixtureFiles = ['install.log', 'appmap.yml'].reduce(
   (memo, fileName) => (
@@ -49,6 +50,21 @@ describe('install-action', () => {
     );
     expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
     expect(patch.contents).toMatch(/\+install --no-interactive/);
+
+    expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
+  });
+
+  it('verifies appmap_dir', async () => {
+    await installer.installAppMapLibrary();
+
+    let exception: Error | undefined;
+    try {
+      await installer.verifyAppMapDir('foo/appmaps');
+    } catch (e) {
+      exception = e as Error;
+    }
+    expect(exception).toBeDefined();
+    expect(exception?.message).toEqual(`Configured appmap_dir is tmp/appmap, expected foo/appmaps`);
   });
 
   it('diff path spec can be configured', async () => {

@@ -17,19 +17,23 @@ const Options: Record<string, keyof Installer> = {
 export async function runInGitHub(): Promise<void> {
   verbose(core.getBooleanInput('verbose'));
 
-  await run(new GitHubArtifactStore(), {
+  const outputs = await run(new GitHubArtifactStore(), {
     appmapConfig: core.getInput('appmap-config'),
     projectType: core.getInput('project-type'),
     buildFile: core.getInput('build-file'),
     installerName: core.getInput('installer-name'),
     toolsUrl: core.getInput('tools-url'),
     githubToken: core.getInput('github-token'),
+    expectedAppMapDir: core.getInput('expected-appmap-dir'),
     ignoreDotAppMap: core.getBooleanInput('ignore-dot-appmap'),
     installAppMapTools: core.getBooleanInput('install-appmap-tools'),
     installAppMapLibrary: core.getBooleanInput('install-appmap-library'),
     buildPatchFile: core.getBooleanInput('build-patch-file'),
     diffPathSpec: core.getInput('diff-path-spec'),
   });
+
+  core.setOutput('appmap-dir', outputs.appmapDir);
+  core.setOutput('patch-file', outputs.patchFile || '');
 }
 
 async function runLocally() {
@@ -46,6 +50,7 @@ async function runLocally() {
   parser.add_argument('--build-file');
   parser.add_argument('--installer-name');
   parser.add_argument('--github-token');
+  parser.add_argument('--expected-appmap-dir');
   parser.add_argument('--ignore-dot-appmap', {default: true});
   parser.add_argument('--install-appmap-tools', {default: true});
   parser.add_argument('--install-appmap-library', {default: true});
@@ -60,7 +65,7 @@ async function runLocally() {
   const artifactDir = options.artifact_dir;
   assert(artifactDir);
 
-  await run(new DirectoryArtifactStore(artifactDir), {
+  const outputs = await run(new DirectoryArtifactStore(artifactDir), {
     appmapConfig: options.appmap_config,
     projectType: options.project_type,
     buildFile: options.build_file,
@@ -68,12 +73,14 @@ async function runLocally() {
     githubToken: options.github_token || process.env.GITHUB_TOKEN,
     toolsUrl: options.tools_url,
     toolsPath: options.tools_path,
+    expectedAppMapDir: options.expected_appmap_dir,
     ignoreDotAppMap: options.ignore_dot_appmap !== 'false',
     installAppMapTools: options.install_appmap_tools !== 'false',
     installAppMapLibrary: options.install_appmap_library !== 'false',
     buildPatchFile: options.build_patch_file !== 'false',
     diffPathSpec: options.diff_path_spec,
   });
+  console.log(`appmap_dir: ${outputs.appmapDir}`);
 }
 
 if (require.main === module) {
