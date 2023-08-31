@@ -12,7 +12,7 @@ env:
   APPMAP_TELEMETRY_DISABLED: 'true'
 
 jobs:
-  main:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +25,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          expected-appmap-dir: tmp/appmap
           project-type: yarn
           verbose: true
 
@@ -41,17 +42,12 @@ jobs:
         id: test
         run: yarn appmap
 
-      - name: Archive AppMaps
-        if: github.event_name != 'pull_request'
-        uses: getappmap/archive-action@main
-
-      - name: Analyze AppMaps
-        if: ( success() || failure() ) && github.event_name == 'pull_request'
-        uses: getappmap/analyze-action@main
+      - name: Save AppMaps
+        uses: actions/cache/save@v3
+        if: always()
         with:
-          base-revision: ${{ github.event.pull_request.base.sha }}
-          head-revision: ${{ github.event.pull_request.head.sha }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ steps.appmap-install.outputs.appmap-dir }}
+          key: appmaps-${{ github.sha }}-${{ github.run_attempt }}
 
       - name: Commit changes
         if: github.event_name == 'pull_request'
@@ -60,9 +56,19 @@ jobs:
           add: dist
           message: 'chore: Packaged distribution of the GitHub action'
 
-      - uses: rickstaa/action-create-tag@v1
+      - name: Tag @v1
+        uses: rickstaa/action-create-tag@v1
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           tag: v1
           force_push_tag: true
 
+  appmap-analysis:
+    if: always()
+    needs: [test]
+    uses: getappmap/analyze-action/.github/workflows/appmap-analysis.yml@v1
+    permissions:
+      actions: read
+      contents: read
+      checks: write
+      pull-requests: write
