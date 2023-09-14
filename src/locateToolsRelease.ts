@@ -1,6 +1,5 @@
 import fetch from 'node-fetch';
-
-import log, {LogLevel} from './log';
+import {log, LogLevel} from '@appland/action-utils';
 
 export default async function locateToolsRelease(
   platform: string,

@@ -1,8 +1,9 @@
 import * as core from '@actions/core';
-import Installer from './Installer';
-import verbose from './verbose';
+import {verbose} from '@appland/action-utils';
 import {ArgumentParser} from 'argparse';
 import assert from 'assert';
+
+import Installer from './Installer';
 import run from './run';
 import {GitHubArtifactStore} from './GitHubArtifactStore';
 import {DirectoryArtifactStore} from './DirectoryArtifactStore';

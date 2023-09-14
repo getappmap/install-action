@@ -1,8 +1,7 @@
 import Installer from '../src/Installer';
-import verbose from '../src/verbose';
-import * as executeCommand from '../src/executeCommand';
+import * as actionUtils from '@appland/action-utils';
 
-if (process.env.VERBOSE) verbose(true);
+if (process.env.VERBOSE) actionUtils.verbose(true);
 
 describe('install-action.install-appmap-library', () => {
   let installer: Installer;
@@ -13,7 +12,7 @@ describe('install-action.install-appmap-library', () => {
   afterEach(() => jest.restoreAllMocks());
 
   it('runs when configured with project-type', async () => {
-    const installCommandFn = jest.spyOn(executeCommand, 'executeCommand').mockResolvedValue('ok');
+    const installCommandFn = jest.spyOn(actionUtils, 'executeCommand').mockResolvedValue('ok');
 
     installer.projectType = 'yarn';
     await installer.installAppMapLibrary();

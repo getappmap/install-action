@@ -1,8 +1,9 @@
 import {join} from 'path';
-import verbose from '../src/verbose';
-import Installer from '../src/Installer';
+import {verbose} from '@appland/action-utils';
 import {readFileSync} from 'fs';
 import {mkdir, readFile, writeFile} from 'fs/promises';
+
+import Installer from '../src/Installer';
 
 const pwd = process.cwd();
 
@@ -49,7 +50,7 @@ describe('install-action', () => {
       'install --no-interactive --no-overwrite-appmap-config --project-type dummy-project-type'
     );
     expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
-    expect(patch.contents).toMatch(/\+install --no-interactive/);
+    expect(patch.contents).toContain(`-# AppMap config will be written here`);
 
     expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
   });

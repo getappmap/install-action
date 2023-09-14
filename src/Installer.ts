@@ -3,10 +3,9 @@ import os from 'os';
 import {tmpdir} from 'os';
 import {join} from 'path';
 import {load} from 'js-yaml';
+import {executeCommand, log, LogLevel} from '@appland/action-utils';
 
 import {downloadFile} from './downloadFile';
-import {executeCommand} from './executeCommand';
-import log, {LogLevel} from './log';
 import locateToolsRelease from './locateToolsRelease';
 
 export default class Installer {
