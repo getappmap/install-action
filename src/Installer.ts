@@ -80,7 +80,7 @@ export default class Installer {
     const patchFileName = join('.appmap', 'appmap-install.patch');
     await executeCommand(`git add -N .`);
     await mkdir('.appmap', {recursive: true});
-    await executeCommand(`git diff -- ${this.diffPathSpec} > ${patchFileName}`);
+    await executeCommand(`git diff --output=${patchFileName} -- ${this.diffPathSpec}`);
     const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);
     return {filename: patchFileName, contents: patch};
