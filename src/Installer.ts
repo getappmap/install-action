@@ -15,7 +15,7 @@ export default class Installer {
   public installerName?: string;
   public buildFile?: string;
   public githubToken?: string;
-  public diffPathSpec = `. ':(exclude,top)vendor' ':(exclude,top)node_modules'`;
+  public diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
 
   constructor(public appmapToolsURL?: string, appmapToolsPath?: string) {
     this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';

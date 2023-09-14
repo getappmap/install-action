@@ -123,7 +123,7 @@ const locateToolsRelease_1 = __importDefault(__nccwpck_require__(3462));
 class Installer {
     constructor(appmapToolsURL, appmapToolsPath) {
         this.appmapToolsURL = appmapToolsURL;
-        this.diffPathSpec = `. ':(exclude,top)vendor' ':(exclude,top)node_modules'`;
+        this.diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
         this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
     }
     ignoreDotAppmap() {

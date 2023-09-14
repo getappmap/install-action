@@ -69,7 +69,7 @@ describe('install-action', () => {
   });
 
   it('diff path spec can be configured', async () => {
-    installer.diffPathSpec = `. ':(exclude)install.log'`;
+    installer.diffPathSpec = `. :(exclude)install.log`;
     await installer.installAppMapTools();
     await installer.installAppMapLibrary();
     const patch = await installer.buildPatchFile();
