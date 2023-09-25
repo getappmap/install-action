@@ -6,29 +6,6 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,7 +19,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DirectoryArtifactStore = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
-const log_1 = __importStar(__nccwpck_require__(1285));
+const action_utils_1 = __nccwpck_require__(1259);
 class DirectoryArtifactStore {
     constructor(directory) {
         this.directory = directory;
@@ -50,9 +27,9 @@ class DirectoryArtifactStore {
     uploadArtifact(name, files) {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, promises_1.mkdir)(this.directory, { recursive: true });
-            (0, log_1.default)(log_1.LogLevel.Info, `Storing artifact ${name} in ${this.directory}`);
+            (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Storing artifact ${name} in ${this.directory}`);
             for (const file of files) {
-                (0, log_1.default)(log_1.LogLevel.Info, `\tFile ${file}`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `\tFile ${file}`);
                 const target = (0, path_1.join)(this.directory, (0, path_1.basename)(file));
                 yield (0, promises_1.copyFile)(file, target);
             }
@@ -122,29 +99,6 @@ exports.GitHubArtifactStore = GitHubArtifactStore;
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -163,14 +117,13 @@ const os_1 = __importDefault(__nccwpck_require__(2037));
 const os_2 = __nccwpck_require__(2037);
 const path_1 = __nccwpck_require__(1017);
 const js_yaml_1 = __nccwpck_require__(1917);
+const action_utils_1 = __nccwpck_require__(1259);
 const downloadFile_1 = __nccwpck_require__(8195);
-const executeCommand_1 = __nccwpck_require__(3285);
-const log_1 = __importStar(__nccwpck_require__(1285));
 const locateToolsRelease_1 = __importDefault(__nccwpck_require__(3462));
 class Installer {
     constructor(appmapToolsURL, appmapToolsPath) {
         this.appmapToolsURL = appmapToolsURL;
-        this.diffPathSpec = `. ':(exclude,top)vendor' ':(exclude,top)node_modules'`;
+        this.diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
         this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
     }
     ignoreDotAppmap() {
@@ -180,11 +133,11 @@ class Installer {
                 gitignore = (yield (0, promises_1.readFile)('.gitignore', 'utf8')).split('\n');
             }
             catch (_a) {
-                (0, log_1.default)(log_1.LogLevel.Info, `Project has no .gitignore file. Initializing an empty one.`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Project has no .gitignore file. Initializing an empty one.`);
                 gitignore = [];
             }
             if (!gitignore.includes('/.appmap')) {
-                (0, log_1.default)(log_1.LogLevel.Info, `Adding .appmap to .gitignore`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Adding .appmap to .gitignore`);
                 gitignore.push('');
                 gitignore.push('# Ignore AppMap archives and working files');
                 gitignore.push('/.appmap');
@@ -199,17 +152,17 @@ class Installer {
             const toolsReleaseURL = this.appmapToolsURL || (yield (0, locateToolsRelease_1.default)(platform, this.githubToken));
             if (!toolsReleaseURL)
                 throw new Error('Could not find @appland/appmap release');
-            (0, log_1.default)(log_1.LogLevel.Info, `Installing AppMap tools from ${toolsReleaseURL}`);
+            (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Installing AppMap tools from ${toolsReleaseURL}`);
             const appmapTempPath = (0, path_1.join)((0, os_2.tmpdir)(), 'appmap');
             yield (0, downloadFile_1.downloadFile)(new URL(toolsReleaseURL), appmapTempPath);
             try {
-                yield (0, executeCommand_1.executeCommand)(`mv ${appmapTempPath} ${this.appmapToolsPath}`);
+                yield (0, action_utils_1.executeCommand)(`mv ${appmapTempPath} ${this.appmapToolsPath}`);
             }
             catch (e) {
-                yield (0, executeCommand_1.executeCommand)(`sudo mv ${appmapTempPath} ${this.appmapToolsPath}`);
+                yield (0, action_utils_1.executeCommand)(`sudo mv ${appmapTempPath} ${this.appmapToolsPath}`);
             }
             yield (0, promises_1.chmod)(this.appmapToolsPath, 0o755);
-            (0, log_1.default)(log_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
+            (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
         });
     }
     installAppMapLibrary() {
@@ -217,7 +170,7 @@ class Installer {
             if (!this.projectType)
                 throw new Error('project-type is required when install-appmap-library is true');
             if (this.appmapConfig) {
-                (0, log_1.default)(log_1.LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Installing the appmap.yml configuration provided by action input.`);
                 yield (0, promises_1.writeFile)('appmap.yml', this.appmapConfig);
             }
             let cmd = `${this.appmapToolsPath} install --no-interactive --no-overwrite-appmap-config`;
@@ -227,18 +180,18 @@ class Installer {
                 cmd += ` --build-file ${this.buildFile}`;
             if (this.installerName)
                 cmd += ` --installer-name ${this.installerName}`;
-            yield (0, executeCommand_1.executeCommand)(cmd);
-            (0, log_1.default)(log_1.LogLevel.Info, `AppMap language library has been installed and configured.`);
+            yield (0, action_utils_1.executeCommand)(cmd);
+            (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `AppMap language library has been installed and configured.`);
         });
     }
     buildPatchFile() {
         return __awaiter(this, void 0, void 0, function* () {
             const patchFileName = (0, path_1.join)('.appmap', 'appmap-install.patch');
-            yield (0, executeCommand_1.executeCommand)(`git add -N .`);
+            yield (0, action_utils_1.executeCommand)(`git add -N .`);
             yield (0, promises_1.mkdir)('.appmap', { recursive: true });
-            yield (0, executeCommand_1.executeCommand)(`git diff -- ${this.diffPathSpec} > ${patchFileName}`);
+            yield (0, action_utils_1.executeCommand)(`git diff --output=${patchFileName} -- ${this.diffPathSpec}`);
             const patch = yield (0, promises_1.readFile)(patchFileName, 'utf8');
-            (0, log_1.default)(log_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
+            (0, action_utils_1.log)(action_utils_1.LogLevel.Debug, `Patch file contents:\n${patch}`);
             return { filename: patchFileName, contents: patch };
         });
     }
@@ -247,7 +200,7 @@ class Installer {
             const appmapDir = yield this.detectAppMapDir();
             if (appmapDir !== expectedAppMapDir) {
                 const msg = `Configured appmap_dir is ${appmapDir}, expected ${expectedAppMapDir}`;
-                (0, log_1.default)(log_1.LogLevel.Warn, msg);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Warn, msg);
                 throw new Error(msg);
             }
         });
@@ -258,7 +211,7 @@ class Installer {
             const appmapConfig = (0, js_yaml_1.load)(appmapConfigData);
             let result = appmapConfig.appmap_dir;
             if (!result) {
-                (0, log_1.default)(log_1.LogLevel.Warn, `config.appmap_dir not found in appmap.yml, using default value tmp/appmap`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Warn, `config.appmap_dir not found in appmap.yml, using default value tmp/appmap`);
                 result = 'tmp/appmap';
             }
             return result;
@@ -319,84 +272,6 @@ exports.downloadFile = downloadFile;
 
 /***/ }),
 
-/***/ 3285:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.executeCommand = void 0;
-const child_process_1 = __nccwpck_require__(2081);
-const log_1 = __importStar(__nccwpck_require__(1285));
-const verbose_1 = __importDefault(__nccwpck_require__(1753));
-function executeCommand(cmd, printCommand = (0, verbose_1.default)(), printStdout = (0, verbose_1.default)(), printStderr = (0, verbose_1.default)()) {
-    if (printCommand)
-        console.log(cmd);
-    const command = (0, child_process_1.exec)(cmd);
-    const result = [];
-    const stderr = [];
-    if (command.stdout) {
-        command.stdout.addListener('data', data => {
-            if (printStdout)
-                (0, log_1.default)(log_1.LogLevel.Debug, data);
-            result.push(data);
-        });
-    }
-    if (command.stderr) {
-        command.stderr.addListener('data', data => {
-            if (printStderr)
-                (0, log_1.default)(log_1.LogLevel.Debug, data);
-            stderr.push(data);
-        });
-    }
-    return new Promise((resolve, reject) => {
-        command.addListener('exit', (code, signal) => {
-            if (signal || code === 0) {
-                if (signal)
-                    (0, log_1.default)(log_1.LogLevel.Info, `Command killed by signal ${signal}`);
-                resolve(result.join(''));
-            }
-            else {
-                if (!printCommand)
-                    (0, log_1.default)(log_1.LogLevel.Warn, cmd);
-                (0, log_1.default)(log_1.LogLevel.Warn, stderr.join(''));
-                (0, log_1.default)(log_1.LogLevel.Warn, result.join(''));
-                reject(new Error(`Command failed with code ${code}`));
-            }
-        });
-    });
-}
-exports.executeCommand = executeCommand;
-
-
-/***/ }),
-
 /***/ 1667:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -440,7 +315,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runInGitHub = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const verbose_1 = __importDefault(__nccwpck_require__(1753));
+const action_utils_1 = __nccwpck_require__(1259);
 const argparse_1 = __nccwpck_require__(1515);
 const assert_1 = __importDefault(__nccwpck_require__(9491));
 const run_1 = __importDefault(__nccwpck_require__(8082));
@@ -454,7 +329,8 @@ const Options = {
 };
 function runInGitHub() {
     return __awaiter(this, void 0, void 0, function* () {
-        (0, verbose_1.default)(core.getBooleanInput('verbose'));
+        (0, action_utils_1.verbose)(core.getBooleanInput('verbose'));
+        (0, action_utils_1.setLogger)(new action_utils_1.ActionLogger());
         const outputs = yield (0, run_1.default)(new GitHubArtifactStore_1.GitHubArtifactStore(), {
             appmapConfig: core.getInput('appmap-config'),
             projectType: core.getInput('project-type'),
@@ -496,7 +372,7 @@ function runLocally() {
         parser.add_argument('--build-patch-file', { default: true });
         parser.add_argument('--diff-path-spec');
         const options = parser.parse_args();
-        (0, verbose_1.default)(options.verbose === 'true' || options.verbose === true);
+        (0, action_utils_1.verbose)(options.verbose === 'true' || options.verbose === true);
         const directory = options.directory;
         if (directory)
             process.chdir(directory);
@@ -535,29 +411,6 @@ if (require.main === require.cache[eval('__filename')]) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -572,14 +425,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
-const log_1 = __importStar(__nccwpck_require__(1285));
+const action_utils_1 = __nccwpck_require__(1259);
 function locateToolsRelease(platform, githubToken) {
     return __awaiter(this, void 0, void 0, function* () {
         let result;
         let page = 1;
         while (!result) {
             const url = `https://api.github.com/repos/applandinc/appmap-js/releases?page=${page}&per_page=100`;
-            (0, log_1.default)(log_1.LogLevel.Debug, `Enumerating appmap-js releases: ${url}`);
+            (0, action_utils_1.log)(action_utils_1.LogLevel.Debug, `Enumerating appmap-js releases: ${url}`);
             const headers = {
                 Accept: 'application/vnd.github+json',
             };
@@ -594,12 +447,12 @@ function locateToolsRelease(platform, githubToken) {
                     message = (yield response.json()).message;
                 }
                 catch (e) {
-                    (0, log_1.default)(log_1.LogLevel.Warn, e.toString());
+                    (0, action_utils_1.log)(action_utils_1.LogLevel.Warn, e.toString());
                     message = 'GitHub API rate limit exceeded.';
                 }
-                (0, log_1.default)(log_1.LogLevel.Info, message);
-                (0, log_1.default)(log_1.LogLevel.Info, `Waiting for 3 seconds.`);
-                (0, log_1.default)(log_1.LogLevel.Info, `You can avoid the rate limit by setting 'github-token: \${{ secrets.GITHUB_TOKEN }}'`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, message);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Waiting for 3 seconds.`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `You can avoid the rate limit by setting 'github-token: \${{ secrets.GITHUB_TOKEN }}'`);
                 yield new Promise(resolve => setTimeout(resolve, 3 * 1000));
                 continue;
             }
@@ -612,7 +465,7 @@ function locateToolsRelease(platform, githubToken) {
             page += 1;
             const release = releases.find((release) => /^@appland\/appmap-v\d+\./.test(release.name));
             if (release) {
-                (0, log_1.default)(log_1.LogLevel.Info, `Using @appland/appmap release ${release.name} for ${platform}`);
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Using @appland/appmap release ${release.name} for ${platform}`);
                 result = release.assets.find((asset) => asset.name === `appmap-${platform}`).browser_download_url;
             }
         }
@@ -620,72 +473,6 @@ function locateToolsRelease(platform, githubToken) {
     });
 }
 exports["default"] = locateToolsRelease;
-
-
-/***/ }),
-
-/***/ 1285:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setLogger = exports.ActionLogger = exports.LogLevel = void 0;
-const core = __importStar(__nccwpck_require__(2186));
-var LogLevel;
-(function (LogLevel) {
-    LogLevel["Debug"] = "debug";
-    LogLevel["Info"] = "info";
-    LogLevel["Warn"] = "warn";
-})(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
-class ActionLogger {
-    debug(message) {
-        core.debug(message);
-    }
-    info(message) {
-        core.info(message);
-    }
-    warn(message) {
-        core.warning(message);
-    }
-}
-exports.ActionLogger = ActionLogger;
-let Logger;
-function setLogger(logger) {
-    Logger = logger;
-}
-exports.setLogger = setLogger;
-function log(level, message) {
-    if (!Logger) {
-        console[level](message);
-        return;
-    }
-    Logger[level](message);
-}
-exports["default"] = log;
 
 
 /***/ }),
@@ -746,24 +533,6 @@ function run(artifactStore, options) {
     });
 }
 exports["default"] = run;
-
-
-/***/ }),
-
-/***/ 1753:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-let isVerbose = false;
-function verbose(v) {
-    if (v !== undefined) {
-        isVerbose = v;
-    }
-    return isVerbose;
-}
-exports["default"] = verbose;
 
 
 /***/ }),
@@ -4732,6 +4501,1308 @@ function isLoopbackAddress(host) {
         hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
 }
 //# sourceMappingURL=proxy.js.map
+
+/***/ }),
+
+/***/ 9617:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ExecuteOptions = void 0;
+const child_process_1 = __nccwpck_require__(2081);
+const log_1 = __importStar(__nccwpck_require__(5854));
+const verbose_1 = __importDefault(__nccwpck_require__(3225));
+const assert_1 = __importDefault(__nccwpck_require__(9491));
+class ExecuteOptions {
+    constructor() {
+        this.printCommand = (0, verbose_1.default)();
+        this.printStdout = (0, verbose_1.default)();
+        this.printStderr = (0, verbose_1.default)();
+        this.allowedCodes = [0];
+    }
+}
+exports.ExecuteOptions = ExecuteOptions;
+function executeCommand(cmd, options = new ExecuteOptions()) {
+    return __awaiter(this, void 0, void 0, function* () {
+        function commandArgs(providedCommand) {
+            let args;
+            if (Array.isArray(providedCommand)) {
+                args = providedCommand;
+            }
+            else {
+                args = providedCommand.split(' ');
+            }
+            const cmd = args.shift();
+            (0, assert_1.default)(cmd);
+            return [cmd, args];
+        }
+        let command;
+        let commandString;
+        const allowedCodes = options.allowedCodes || [0];
+        if (typeof cmd === 'string') {
+            commandString = cmd;
+            command = (0, child_process_1.spawn)(...commandArgs(cmd));
+        }
+        else {
+            commandString = cmd.cmd;
+            const args = commandArgs(cmd.cmd);
+            command = (0, child_process_1.spawn)(...args, cmd.options || {});
+        }
+        if (options.printCommand)
+            (0, log_1.default)(log_1.LogLevel.Debug, ['command', commandString].join(': '));
+        const result = [];
+        const stderr = [];
+        if (command.stdout) {
+            command.stdout.addListener('data', data => {
+                if (options.printStdout)
+                    (0, log_1.default)(log_1.LogLevel.Debug, ['stdout', data.toString('utf-8')].join(': '));
+                result.push(data);
+            });
+        }
+        if (command.stderr) {
+            command.stderr.addListener('data', data => {
+                if (options.printStderr)
+                    (0, log_1.default)(log_1.LogLevel.Debug, ['stderr', data.toString('utf-8')].join(': '));
+                stderr.push(data);
+            });
+        }
+        return new Promise((resolve, reject) => {
+            command.on('error', (err) => {
+                (0, log_1.default)(log_1.LogLevel.Warn, `Command "${commandString}" could not be executed: ${err}`);
+                reject(err);
+            });
+            command.on('close', (code, signal) => {
+                if (signal || (code !== null && allowedCodes.includes(code))) {
+                    if (signal)
+                        (0, log_1.default)(log_1.LogLevel.Warn, `Command "${commandString}" killed by signal ${signal}, exited with code ${code}`);
+                    if (code !== 0)
+                        (0, log_1.default)(log_1.LogLevel.Info, `Command "${commandString}" exited with code ${code}, but any of [${allowedCodes.join(', ')}] is allowed.`);
+                    resolve(result.map(d => d.toString('utf-8')).join(''));
+                }
+                else {
+                    (0, log_1.default)(log_1.LogLevel.Warn, `Command "${commandString}" exited with failure code ${code}`);
+                    (0, log_1.default)(log_1.LogLevel.Warn, stderr.join(''));
+                    (0, log_1.default)(log_1.LogLevel.Warn, result.join(''));
+                    reject(new Error(`Command failed with code ${code}`));
+                }
+            });
+        });
+    });
+}
+exports["default"] = executeCommand;
+
+
+/***/ }),
+
+/***/ 1259:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.verbose = exports.executeCommand = exports.log = void 0;
+var log_1 = __nccwpck_require__(5854);
+Object.defineProperty(exports, "log", ({ enumerable: true, get: function () { return __importDefault(log_1).default; } }));
+__exportStar(__nccwpck_require__(5854), exports);
+var executeCommand_1 = __nccwpck_require__(9617);
+Object.defineProperty(exports, "executeCommand", ({ enumerable: true, get: function () { return __importDefault(executeCommand_1).default; } }));
+__exportStar(__nccwpck_require__(9617), exports);
+var verbose_1 = __nccwpck_require__(3225);
+Object.defineProperty(exports, "verbose", ({ enumerable: true, get: function () { return __importDefault(verbose_1).default; } }));
+__exportStar(__nccwpck_require__(1567), exports);
+
+
+/***/ }),
+
+/***/ 5854:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setLogger = exports.ActionLogger = exports.LogLevel = void 0;
+const core = __importStar(__nccwpck_require__(4598));
+var LogLevel;
+(function (LogLevel) {
+    LogLevel["Debug"] = "debug";
+    LogLevel["Info"] = "info";
+    LogLevel["Warn"] = "warn";
+})(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
+class ActionLogger {
+    debug(message) {
+        core.debug(message);
+    }
+    info(message) {
+        core.info(message);
+    }
+    warn(message) {
+        core.warning(message);
+    }
+}
+exports.ActionLogger = ActionLogger;
+let Logger;
+function setLogger(logger) {
+    Logger = logger;
+}
+exports.setLogger = setLogger;
+function log(level, message) {
+    if (!Logger) {
+        if (message.endsWith('\n'))
+            message = message.slice(0, -1);
+        console[level](message);
+        return;
+    }
+    Logger[level](message);
+}
+exports["default"] = log;
+
+
+/***/ }),
+
+/***/ 3225:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+let isVerbose = false;
+function verbose(v) {
+    if (v === 'true' || v === true) {
+        isVerbose = true;
+    }
+    return isVerbose;
+}
+exports["default"] = verbose;
+
+
+/***/ }),
+
+/***/ 1567:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.wait = exports.waitFor = void 0;
+function waitFor(message, test, timeout = 30000) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const startTime = Date.now();
+        let delay = 100;
+        let exception;
+        let result;
+        const check = () => __awaiter(this, void 0, void 0, function* () {
+            try {
+                result = yield test();
+                return result;
+            }
+            catch (e) {
+                exception = e;
+                return false;
+            }
+        });
+        while (!(yield check())) {
+            const elapsed = Date.now() - startTime;
+            if (elapsed > timeout) {
+                if (exception)
+                    throw exception;
+                else
+                    throw new Error(message);
+            }
+            delay = delay * 2;
+            console.log(`Waiting ${delay}ms because: ${message}`);
+            yield wait(delay);
+        }
+    });
+}
+exports.waitFor = waitFor;
+function wait(ms) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve) => {
+            setTimeout(resolve, ms);
+        });
+    });
+}
+exports.wait = wait;
+
+
+/***/ }),
+
+/***/ 5598:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.issue = exports.issueCommand = void 0;
+const os = __importStar(__nccwpck_require__(2037));
+const utils_1 = __nccwpck_require__(6545);
+/**
+ * Commands
+ *
+ * Command Format:
+ *   ::name key=value,key=value::message
+ *
+ * Examples:
+ *   ::warning::This is the message
+ *   ::set-env name=MY_VAR::some value
+ */
+function issueCommand(command, properties, message) {
+    const cmd = new Command(command, properties, message);
+    process.stdout.write(cmd.toString() + os.EOL);
+}
+exports.issueCommand = issueCommand;
+function issue(name, message = '') {
+    issueCommand(name, {}, message);
+}
+exports.issue = issue;
+const CMD_STRING = '::';
+class Command {
+    constructor(command, properties, message) {
+        if (!command) {
+            command = 'missing.command';
+        }
+        this.command = command;
+        this.properties = properties;
+        this.message = message;
+    }
+    toString() {
+        let cmdStr = CMD_STRING + this.command;
+        if (this.properties && Object.keys(this.properties).length > 0) {
+            cmdStr += ' ';
+            let first = true;
+            for (const key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    const val = this.properties[key];
+                    if (val) {
+                        if (first) {
+                            first = false;
+                        }
+                        else {
+                            cmdStr += ',';
+                        }
+                        cmdStr += `${key}=${escapeProperty(val)}`;
+                    }
+                }
+            }
+        }
+        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
+        return cmdStr;
+    }
+}
+function escapeData(s) {
+    return utils_1.toCommandValue(s)
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A');
+}
+function escapeProperty(s) {
+    return utils_1.toCommandValue(s)
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A')
+        .replace(/:/g, '%3A')
+        .replace(/,/g, '%2C');
+}
+//# sourceMappingURL=command.js.map
+
+/***/ }),
+
+/***/ 4598:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
+const command_1 = __nccwpck_require__(5598);
+const file_command_1 = __nccwpck_require__(4287);
+const utils_1 = __nccwpck_require__(6545);
+const os = __importStar(__nccwpck_require__(2037));
+const path = __importStar(__nccwpck_require__(1017));
+const oidc_utils_1 = __nccwpck_require__(1496);
+/**
+ * The code to exit an action
+ */
+var ExitCode;
+(function (ExitCode) {
+    /**
+     * A code indicating that the action was successful
+     */
+    ExitCode[ExitCode["Success"] = 0] = "Success";
+    /**
+     * A code indicating that the action was a failure
+     */
+    ExitCode[ExitCode["Failure"] = 1] = "Failure";
+})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
+//-----------------------------------------------------------------------
+// Variables
+//-----------------------------------------------------------------------
+/**
+ * Sets env variable for this action and future actions in the job
+ * @param name the name of the variable to set
+ * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function exportVariable(name, val) {
+    const convertedVal = utils_1.toCommandValue(val);
+    process.env[name] = convertedVal;
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('ENV', file_command_1.prepareKeyValueMessage(name, val));
+    }
+    command_1.issueCommand('set-env', { name }, convertedVal);
+}
+exports.exportVariable = exportVariable;
+/**
+ * Registers a secret which will get masked from logs
+ * @param secret value of the secret
+ */
+function setSecret(secret) {
+    command_1.issueCommand('add-mask', {}, secret);
+}
+exports.setSecret = setSecret;
+/**
+ * Prepends inputPath to the PATH (for this action and future actions)
+ * @param inputPath
+ */
+function addPath(inputPath) {
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueFileCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
+    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
+}
+exports.addPath = addPath;
+/**
+ * Gets the value of an input.
+ * Unless trimWhitespace is set to false in InputOptions, the value is also trimmed.
+ * Returns an empty string if the value is not defined.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string
+ */
+function getInput(name, options) {
+    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
+    if (options && options.required && !val) {
+        throw new Error(`Input required and not supplied: ${name}`);
+    }
+    if (options && options.trimWhitespace === false) {
+        return val;
+    }
+    return val.trim();
+}
+exports.getInput = getInput;
+/**
+ * Gets the values of an multiline input.  Each value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string[]
+ *
+ */
+function getMultilineInput(name, options) {
+    const inputs = getInput(name, options)
+        .split('\n')
+        .filter(x => x !== '');
+    if (options && options.trimWhitespace === false) {
+        return inputs;
+    }
+    return inputs.map(input => input.trim());
+}
+exports.getMultilineInput = getMultilineInput;
+/**
+ * Gets the input value of the boolean type in the YAML 1.2 "core schema" specification.
+ * Support boolean input list: `true | True | TRUE | false | False | FALSE` .
+ * The return value is also in boolean type.
+ * ref: https://yaml.org/spec/1.2/spec.html#id2804923
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   boolean
+ */
+function getBooleanInput(name, options) {
+    const trueValue = ['true', 'True', 'TRUE'];
+    const falseValue = ['false', 'False', 'FALSE'];
+    const val = getInput(name, options);
+    if (trueValue.includes(val))
+        return true;
+    if (falseValue.includes(val))
+        return false;
+    throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}\n` +
+        `Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+}
+exports.getBooleanInput = getBooleanInput;
+/**
+ * Sets the value of an output.
+ *
+ * @param     name     name of the output to set
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setOutput(name, value) {
+    const filePath = process.env['GITHUB_OUTPUT'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('OUTPUT', file_command_1.prepareKeyValueMessage(name, value));
+    }
+    process.stdout.write(os.EOL);
+    command_1.issueCommand('set-output', { name }, utils_1.toCommandValue(value));
+}
+exports.setOutput = setOutput;
+/**
+ * Enables or disables the echoing of commands into stdout for the rest of the step.
+ * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
+ *
+ */
+function setCommandEcho(enabled) {
+    command_1.issue('echo', enabled ? 'on' : 'off');
+}
+exports.setCommandEcho = setCommandEcho;
+//-----------------------------------------------------------------------
+// Results
+//-----------------------------------------------------------------------
+/**
+ * Sets the action status to failed.
+ * When the action exits it will be with an exit code of 1
+ * @param message add error issue message
+ */
+function setFailed(message) {
+    process.exitCode = ExitCode.Failure;
+    error(message);
+}
+exports.setFailed = setFailed;
+//-----------------------------------------------------------------------
+// Logging Commands
+//-----------------------------------------------------------------------
+/**
+ * Gets whether Actions Step Debug is on or not
+ */
+function isDebug() {
+    return process.env['RUNNER_DEBUG'] === '1';
+}
+exports.isDebug = isDebug;
+/**
+ * Writes debug message to user log
+ * @param message debug message
+ */
+function debug(message) {
+    command_1.issueCommand('debug', {}, message);
+}
+exports.debug = debug;
+/**
+ * Adds an error issue
+ * @param message error issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function error(message, properties = {}) {
+    command_1.issueCommand('error', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+exports.error = error;
+/**
+ * Adds a warning issue
+ * @param message warning issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function warning(message, properties = {}) {
+    command_1.issueCommand('warning', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+exports.warning = warning;
+/**
+ * Adds a notice issue
+ * @param message notice issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function notice(message, properties = {}) {
+    command_1.issueCommand('notice', utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+exports.notice = notice;
+/**
+ * Writes info to log with console.log.
+ * @param message info message
+ */
+function info(message) {
+    process.stdout.write(message + os.EOL);
+}
+exports.info = info;
+/**
+ * Begin an output group.
+ *
+ * Output until the next `groupEnd` will be foldable in this group
+ *
+ * @param name The name of the output group
+ */
+function startGroup(name) {
+    command_1.issue('group', name);
+}
+exports.startGroup = startGroup;
+/**
+ * End an output group.
+ */
+function endGroup() {
+    command_1.issue('endgroup');
+}
+exports.endGroup = endGroup;
+/**
+ * Wrap an asynchronous function call in a group.
+ *
+ * Returns the same type as the function itself.
+ *
+ * @param name The name of the group
+ * @param fn The function to wrap in the group
+ */
+function group(name, fn) {
+    return __awaiter(this, void 0, void 0, function* () {
+        startGroup(name);
+        let result;
+        try {
+            result = yield fn();
+        }
+        finally {
+            endGroup();
+        }
+        return result;
+    });
+}
+exports.group = group;
+//-----------------------------------------------------------------------
+// Wrapper action state
+//-----------------------------------------------------------------------
+/**
+ * Saves state for current action, the state can only be retrieved by this action's post job execution.
+ *
+ * @param     name     name of the state to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function saveState(name, value) {
+    const filePath = process.env['GITHUB_STATE'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('STATE', file_command_1.prepareKeyValueMessage(name, value));
+    }
+    command_1.issueCommand('save-state', { name }, utils_1.toCommandValue(value));
+}
+exports.saveState = saveState;
+/**
+ * Gets the value of an state set by this action's main execution.
+ *
+ * @param     name     name of the state to get
+ * @returns   string
+ */
+function getState(name) {
+    return process.env[`STATE_${name}`] || '';
+}
+exports.getState = getState;
+function getIDToken(aud) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield oidc_utils_1.OidcClient.getIDToken(aud);
+    });
+}
+exports.getIDToken = getIDToken;
+/**
+ * Summary exports
+ */
+var summary_1 = __nccwpck_require__(5498);
+Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () { return summary_1.summary; } }));
+/**
+ * @deprecated use core.summary
+ */
+var summary_2 = __nccwpck_require__(5498);
+Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
+/**
+ * Path exports
+ */
+var path_utils_1 = __nccwpck_require__(6715);
+Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
+Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
+Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
+//# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ 4287:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+// For internal use, subject to change.
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__nccwpck_require__(7147));
+const os = __importStar(__nccwpck_require__(2037));
+const uuid_1 = __nccwpck_require__(5840);
+const utils_1 = __nccwpck_require__(6545);
+function issueFileCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueFileCommand = issueFileCommand;
+function prepareKeyValueMessage(key, value) {
+    const delimiter = `ghadelimiter_${uuid_1.v4()}`;
+    const convertedValue = utils_1.toCommandValue(value);
+    // These should realistically never happen, but just in case someone finds a
+    // way to exploit uuid generation let's not allow keys or values that contain
+    // the delimiter.
+    if (key.includes(delimiter)) {
+        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+    }
+    if (convertedValue.includes(delimiter)) {
+        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+    }
+    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+}
+exports.prepareKeyValueMessage = prepareKeyValueMessage;
+//# sourceMappingURL=file-command.js.map
+
+/***/ }),
+
+/***/ 1496:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OidcClient = void 0;
+const http_client_1 = __nccwpck_require__(6255);
+const auth_1 = __nccwpck_require__(5526);
+const core_1 = __nccwpck_require__(4598);
+class OidcClient {
+    static createHttpClient(allowRetry = true, maxRetry = 10) {
+        const requestOptions = {
+            allowRetries: allowRetry,
+            maxRetries: maxRetry
+        };
+        return new http_client_1.HttpClient('actions/oidc-client', [new auth_1.BearerCredentialHandler(OidcClient.getRequestToken())], requestOptions);
+    }
+    static getRequestToken() {
+        const token = process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
+        if (!token) {
+            throw new Error('Unable to get ACTIONS_ID_TOKEN_REQUEST_TOKEN env variable');
+        }
+        return token;
+    }
+    static getIDTokenUrl() {
+        const runtimeUrl = process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];
+        if (!runtimeUrl) {
+            throw new Error('Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable');
+        }
+        return runtimeUrl;
+    }
+    static getCall(id_token_url) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            const httpclient = OidcClient.createHttpClient();
+            const res = yield httpclient
+                .getJson(id_token_url)
+                .catch(error => {
+                throw new Error(`Failed to get ID Token. \n 
+        Error Code : ${error.statusCode}\n 
+        Error Message: ${error.message}`);
+            });
+            const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
+            if (!id_token) {
+                throw new Error('Response json body do not have ID Token field');
+            }
+            return id_token;
+        });
+    }
+    static getIDToken(audience) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // New ID Token is requested from action service
+                let id_token_url = OidcClient.getIDTokenUrl();
+                if (audience) {
+                    const encodedAudience = encodeURIComponent(audience);
+                    id_token_url = `${id_token_url}&audience=${encodedAudience}`;
+                }
+                core_1.debug(`ID token url is ${id_token_url}`);
+                const id_token = yield OidcClient.getCall(id_token_url);
+                core_1.setSecret(id_token);
+                return id_token;
+            }
+            catch (error) {
+                throw new Error(`Error message: ${error.message}`);
+            }
+        });
+    }
+}
+exports.OidcClient = OidcClient;
+//# sourceMappingURL=oidc-utils.js.map
+
+/***/ }),
+
+/***/ 6715:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = void 0;
+const path = __importStar(__nccwpck_require__(1017));
+/**
+ * toPosixPath converts the given path to the posix form. On Windows, \\ will be
+ * replaced with /.
+ *
+ * @param pth. Path to transform.
+ * @return string Posix path.
+ */
+function toPosixPath(pth) {
+    return pth.replace(/[\\]/g, '/');
+}
+exports.toPosixPath = toPosixPath;
+/**
+ * toWin32Path converts the given path to the win32 form. On Linux, / will be
+ * replaced with \\.
+ *
+ * @param pth. Path to transform.
+ * @return string Win32 path.
+ */
+function toWin32Path(pth) {
+    return pth.replace(/[/]/g, '\\');
+}
+exports.toWin32Path = toWin32Path;
+/**
+ * toPlatformPath converts the given path to a platform-specific path. It does
+ * this by replacing instances of / and \ with the platform-specific path
+ * separator.
+ *
+ * @param pth The path to platformize.
+ * @return string The platform-specific path.
+ */
+function toPlatformPath(pth) {
+    return pth.replace(/[/\\]/g, path.sep);
+}
+exports.toPlatformPath = toPlatformPath;
+//# sourceMappingURL=path-utils.js.map
+
+/***/ }),
+
+/***/ 5498:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
+const os_1 = __nccwpck_require__(2037);
+const fs_1 = __nccwpck_require__(7147);
+const { access, appendFile, writeFile } = fs_1.promises;
+exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
+exports.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
+class Summary {
+    constructor() {
+        this._buffer = '';
+    }
+    /**
+     * Finds the summary file path from the environment, rejects if env var is not found or file does not exist
+     * Also checks r/w permissions.
+     *
+     * @returns step summary file path
+     */
+    filePath() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._filePath) {
+                return this._filePath;
+            }
+            const pathFromEnv = process.env[exports.SUMMARY_ENV_VAR];
+            if (!pathFromEnv) {
+                throw new Error(`Unable to find environment variable for $${exports.SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
+            }
+            try {
+                yield access(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
+            }
+            catch (_a) {
+                throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
+            }
+            this._filePath = pathFromEnv;
+            return this._filePath;
+        });
+    }
+    /**
+     * Wraps content in an HTML tag, adding any HTML attributes
+     *
+     * @param {string} tag HTML tag to wrap
+     * @param {string | null} content content within the tag
+     * @param {[attribute: string]: string} attrs key-value list of HTML attributes to add
+     *
+     * @returns {string} content wrapped in HTML element
+     */
+    wrap(tag, content, attrs = {}) {
+        const htmlAttrs = Object.entries(attrs)
+            .map(([key, value]) => ` ${key}="${value}"`)
+            .join('');
+        if (!content) {
+            return `<${tag}${htmlAttrs}>`;
+        }
+        return `<${tag}${htmlAttrs}>${content}</${tag}>`;
+    }
+    /**
+     * Writes text in the buffer to the summary buffer file and empties buffer. Will append by default.
+     *
+     * @param {SummaryWriteOptions} [options] (optional) options for write operation
+     *
+     * @returns {Promise<Summary>} summary instance
+     */
+    write(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
+            const filePath = yield this.filePath();
+            const writeFunc = overwrite ? writeFile : appendFile;
+            yield writeFunc(filePath, this._buffer, { encoding: 'utf8' });
+            return this.emptyBuffer();
+        });
+    }
+    /**
+     * Clears the summary buffer and wipes the summary file
+     *
+     * @returns {Summary} summary instance
+     */
+    clear() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.emptyBuffer().write({ overwrite: true });
+        });
+    }
+    /**
+     * Returns the current summary buffer as a string
+     *
+     * @returns {string} string of summary buffer
+     */
+    stringify() {
+        return this._buffer;
+    }
+    /**
+     * If the summary buffer is empty
+     *
+     * @returns {boolen} true if the buffer is empty
+     */
+    isEmptyBuffer() {
+        return this._buffer.length === 0;
+    }
+    /**
+     * Resets the summary buffer without writing to summary file
+     *
+     * @returns {Summary} summary instance
+     */
+    emptyBuffer() {
+        this._buffer = '';
+        return this;
+    }
+    /**
+     * Adds raw text to the summary buffer
+     *
+     * @param {string} text content to add
+     * @param {boolean} [addEOL=false] (optional) append an EOL to the raw text (default: false)
+     *
+     * @returns {Summary} summary instance
+     */
+    addRaw(text, addEOL = false) {
+        this._buffer += text;
+        return addEOL ? this.addEOL() : this;
+    }
+    /**
+     * Adds the operating system-specific end-of-line marker to the buffer
+     *
+     * @returns {Summary} summary instance
+     */
+    addEOL() {
+        return this.addRaw(os_1.EOL);
+    }
+    /**
+     * Adds an HTML codeblock to the summary buffer
+     *
+     * @param {string} code content to render within fenced code block
+     * @param {string} lang (optional) language to syntax highlight code
+     *
+     * @returns {Summary} summary instance
+     */
+    addCodeBlock(code, lang) {
+        const attrs = Object.assign({}, (lang && { lang }));
+        const element = this.wrap('pre', this.wrap('code', code), attrs);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML list to the summary buffer
+     *
+     * @param {string[]} items list of items to render
+     * @param {boolean} [ordered=false] (optional) if the rendered list should be ordered or not (default: false)
+     *
+     * @returns {Summary} summary instance
+     */
+    addList(items, ordered = false) {
+        const tag = ordered ? 'ol' : 'ul';
+        const listItems = items.map(item => this.wrap('li', item)).join('');
+        const element = this.wrap(tag, listItems);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML table to the summary buffer
+     *
+     * @param {SummaryTableCell[]} rows table rows
+     *
+     * @returns {Summary} summary instance
+     */
+    addTable(rows) {
+        const tableBody = rows
+            .map(row => {
+            const cells = row
+                .map(cell => {
+                if (typeof cell === 'string') {
+                    return this.wrap('td', cell);
+                }
+                const { header, data, colspan, rowspan } = cell;
+                const tag = header ? 'th' : 'td';
+                const attrs = Object.assign(Object.assign({}, (colspan && { colspan })), (rowspan && { rowspan }));
+                return this.wrap(tag, data, attrs);
+            })
+                .join('');
+            return this.wrap('tr', cells);
+        })
+            .join('');
+        const element = this.wrap('table', tableBody);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds a collapsable HTML details element to the summary buffer
+     *
+     * @param {string} label text for the closed state
+     * @param {string} content collapsable content
+     *
+     * @returns {Summary} summary instance
+     */
+    addDetails(label, content) {
+        const element = this.wrap('details', this.wrap('summary', label) + content);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML image tag to the summary buffer
+     *
+     * @param {string} src path to the image you to embed
+     * @param {string} alt text description of the image
+     * @param {SummaryImageOptions} options (optional) addition image attributes
+     *
+     * @returns {Summary} summary instance
+     */
+    addImage(src, alt, options) {
+        const { width, height } = options || {};
+        const attrs = Object.assign(Object.assign({}, (width && { width })), (height && { height }));
+        const element = this.wrap('img', null, Object.assign({ src, alt }, attrs));
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML section heading element
+     *
+     * @param {string} text heading text
+     * @param {number | string} [level=1] (optional) the heading level, default: 1
+     *
+     * @returns {Summary} summary instance
+     */
+    addHeading(text, level) {
+        const tag = `h${level}`;
+        const allowedTag = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)
+            ? tag
+            : 'h1';
+        const element = this.wrap(allowedTag, text);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML thematic break (<hr>) to the summary buffer
+     *
+     * @returns {Summary} summary instance
+     */
+    addSeparator() {
+        const element = this.wrap('hr', null);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML line break (<br>) to the summary buffer
+     *
+     * @returns {Summary} summary instance
+     */
+    addBreak() {
+        const element = this.wrap('br', null);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML blockquote to the summary buffer
+     *
+     * @param {string} text quote text
+     * @param {string} cite (optional) citation url
+     *
+     * @returns {Summary} summary instance
+     */
+    addQuote(text, cite) {
+        const attrs = Object.assign({}, (cite && { cite }));
+        const element = this.wrap('blockquote', text, attrs);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML anchor tag to the summary buffer
+     *
+     * @param {string} text link text/content
+     * @param {string} href hyperlink
+     *
+     * @returns {Summary} summary instance
+     */
+    addLink(text, href) {
+        const element = this.wrap('a', text, { href });
+        return this.addRaw(element).addEOL();
+    }
+}
+const _summary = new Summary();
+/**
+ * @deprecated use `core.summary`
+ */
+exports.markdownSummary = _summary;
+exports.summary = _summary;
+//# sourceMappingURL=summary.js.map
+
+/***/ }),
+
+/***/ 6545:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toCommandProperties = exports.toCommandValue = void 0;
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
+/**
+ *
+ * @param annotationProperties
+ * @returns The command properties to send with the actual annotation command
+ * See IssueCommandProperties: https://github.com/actions/runner/blob/main/src/Runner.Worker/ActionCommandManager.cs#L646
+ */
+function toCommandProperties(annotationProperties) {
+    if (!Object.keys(annotationProperties).length) {
+        return {};
+    }
+    return {
+        title: annotationProperties.title,
+        file: annotationProperties.file,
+        line: annotationProperties.startLine,
+        endLine: annotationProperties.endLine,
+        col: annotationProperties.startColumn,
+        endColumn: annotationProperties.endColumn
+    };
+}
+exports.toCommandProperties = toCommandProperties;
+//# sourceMappingURL=utils.js.map
 
 /***/ }),
 

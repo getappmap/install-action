@@ -1,6 +1,7 @@
 import {copyFile, mkdir} from 'fs/promises';
 import {basename, join} from 'path';
-import log, {LogLevel} from './log';
+import {log, LogLevel} from '@appland/action-utils';
+
 import ArtifactStore from './ArtifactStore';
 
 export class DirectoryArtifactStore implements ArtifactStore {

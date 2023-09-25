@@ -1,6 +1,7 @@
-import locateToolsRelease from '../src/locateToolsRelease';
-import verbose from '../src/verbose';
 import * as fetch from 'node-fetch';
+import {verbose} from '@appland/action-utils';
+
+import locateToolsRelease from '../src/locateToolsRelease';
 
 if (process.env.VERBOSE) verbose(true);
 

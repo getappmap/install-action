@@ -3,10 +3,9 @@ import os from 'os';
 import {tmpdir} from 'os';
 import {join} from 'path';
 import {load} from 'js-yaml';
+import {executeCommand, log, LogLevel} from '@appland/action-utils';
 
 import {downloadFile} from './downloadFile';
-import {executeCommand} from './executeCommand';
-import log, {LogLevel} from './log';
 import locateToolsRelease from './locateToolsRelease';
 
 export default class Installer {
@@ -16,7 +15,7 @@ export default class Installer {
   public installerName?: string;
   public buildFile?: string;
   public githubToken?: string;
-  public diffPathSpec = `. ':(exclude,top)vendor' ':(exclude,top)node_modules'`;
+  public diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
 
   constructor(public appmapToolsURL?: string, appmapToolsPath?: string) {
     this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
@@ -81,7 +80,7 @@ export default class Installer {
     const patchFileName = join('.appmap', 'appmap-install.patch');
     await executeCommand(`git add -N .`);
     await mkdir('.appmap', {recursive: true});
-    await executeCommand(`git diff -- ${this.diffPathSpec} > ${patchFileName}`);
+    await executeCommand(`git diff --output=${patchFileName} -- ${this.diffPathSpec}`);
     const patch = await readFile(patchFileName, 'utf8');
     log(LogLevel.Debug, `Patch file contents:\n${patch}`);
     return {filename: patchFileName, contents: patch};
