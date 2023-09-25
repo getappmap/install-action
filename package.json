@@ -30,7 +30,7 @@
     "@actions/artifact": "^1.1.1",
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "@appland/action-utils": "https://github.com/getappmap/action-utils#feat/initial-release",
+    "@appland/action-utils": "https://github.com/getappmap/action-utils",
     "@types/argparse": "^2.0.10",
     "@types/yaml": "^1.9.7",
     "argparse": "^2.0.1",
