@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import {verbose} from '@appland/action-utils';
+import {ActionLogger, setLogger, verbose} from '@appland/action-utils';
 import {ArgumentParser} from 'argparse';
 import assert from 'assert';
 
@@ -17,6 +17,7 @@ const Options: Record<string, keyof Installer> = {
 
 export async function runInGitHub(): Promise<void> {
   verbose(core.getBooleanInput('verbose'));
+  setLogger(new ActionLogger());
 
   const outputs = await run(new GitHubArtifactStore(), {
     appmapConfig: core.getInput('appmap-config'),
