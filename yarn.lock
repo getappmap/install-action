@@ -53,12 +53,18 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@appland/action-utils@https://github.com/getappmap/action-utils":
-  version "1.0.0"
-  resolved "https://github.com/getappmap/action-utils#e690dd77134e4b215385b3625467d1b2e9ea7c7c"
+<<<<<<< HEAD
+"@appland/action-utils@https://github.com/getappmap/action-utils#feat/download-tools":
+  version "1.1.0"
+  resolved "https://github.com/getappmap/action-utils#ed9b257c62b62d2307440517c25ac9d785bd91bf"
+=======
+"@appland/action-utils@https://github.com/getappmap/action-utils#main":
+  version "1.1.0"
+  resolved "https://github.com/getappmap/action-utils#638e40d91797debdf9ca818d818b6bef4c73ab9a"
+>>>>>>> 7f11e79 (fixup! feat: Use action-utils to install AppMap tools)
   dependencies:
     "@actions/core" "^1.10.1"
-    node-fetch "^2"
+    node-fetch "^2.6.6"
 
 "@appland/appmap-agent-js@^14.2.0":
   version "14.2.0"
@@ -2516,6 +2522,13 @@ node-fetch@^2, node-fetch@^2.6.7:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.9.tgz#7c7f744b5cc6eb5fd404e0c7a9fec630a55657e6"
   integrity sha512-DJm/CJkZkRjKKj4Zi4BsKVZh3ValV5IR5s7LVZnW+6YMh0W1BfNA8XSs6DLMGYlId5F3KnA70uu2qepcR08Qqg==
+  dependencies:
+    whatwg-url "^5.0.0"
+
+node-fetch@^2.6.6:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
+  integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
   dependencies:
     whatwg-url "^5.0.0"
 

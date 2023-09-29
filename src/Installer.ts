@@ -1,12 +1,8 @@
-import {chmod, mkdir, readFile, writeFile} from 'fs/promises';
-import os from 'os';
-import {tmpdir} from 'os';
+import {mkdir, readFile, writeFile} from 'fs/promises';
 import {join} from 'path';
 import {load} from 'js-yaml';
 import {executeCommand, log, LogLevel} from '@appland/action-utils';
-
-import {downloadFile} from './downloadFile';
-import locateToolsRelease from './locateToolsRelease';
+import * as actionUtils from '@appland/action-utils';
 
 export default class Installer {
   public appmapToolsPath: string;
@@ -44,22 +40,12 @@ export default class Installer {
   }
 
   async installAppMapTools() {
-    const platform = [os.platform() === 'darwin' ? 'macos' : os.platform(), os.arch()].join('-');
-    const toolsReleaseURL =
-      this.appmapToolsURL || (await locateToolsRelease(platform, this.githubToken));
-    if (!toolsReleaseURL) throw new Error('Could not find @appland/appmap release');
-
-    log(LogLevel.Info, `Installing AppMap tools from ${toolsReleaseURL}`);
-    const appmapTempPath = join(tmpdir(), 'appmap');
-    await downloadFile(new URL(toolsReleaseURL), appmapTempPath);
-    try {
-      await executeCommand(`mv ${appmapTempPath} ${this.appmapToolsPath}`);
-    } catch (e) {
-      await executeCommand(`sudo mv ${appmapTempPath} ${this.appmapToolsPath}`);
-    }
-    await chmod(this.appmapToolsPath, 0o755);
-
-    log(LogLevel.Info, `AppMap tools are installed at ${this.appmapToolsPath}`);
+    // If you run this github action, the tools will always be installed to the requested location,
+    // even if there is a previous version installed. This is a way to force a known version of the tools package.
+    // Other AppMap actions will use the installed tools if they already exist, and won't re-install.
+    const options: actionUtils.InstallAppMapToolsOptions = {force: true};
+    if (this.appmapToolsURL) options.toolsURL = this.appmapToolsURL;
+    await actionUtils.installAppMapTools(this.appmapToolsPath, options);
   }
 
   async installAppMapLibrary() {
