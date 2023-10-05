@@ -121,8 +121,10 @@ const action_utils_1 = __nccwpck_require__(1259);
 const downloadFile_1 = __nccwpck_require__(8195);
 const locateToolsRelease_1 = __importDefault(__nccwpck_require__(3462));
 class Installer {
-    constructor(appmapToolsURL, appmapToolsPath) {
+    constructor(appmapToolsURL, appmapToolsPath, appmapConfig, shouldInstallLibrary) {
         this.appmapToolsURL = appmapToolsURL;
+        this.appmapConfig = appmapConfig;
+        this.shouldInstallLibrary = shouldInstallLibrary;
         this.diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
         this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
     }
@@ -207,9 +209,17 @@ class Installer {
     }
     detectAppMapDir() {
         return __awaiter(this, void 0, void 0, function* () {
-            const appmapConfigData = yield (0, promises_1.readFile)('appmap.yml', 'utf8');
-            const appmapConfig = (0, js_yaml_1.load)(appmapConfigData);
-            let result = appmapConfig.appmap_dir;
+            let appmapConfig;
+            try {
+                const appmapConfigData = yield (0, promises_1.readFile)('appmap.yml', 'utf8');
+                appmapConfig = (0, js_yaml_1.load)(appmapConfigData);
+            }
+            catch (e) {
+                const err = e;
+                if (this.shouldInstallLibrary)
+                    throw new Error(`${err.message}\nERROR: appmap.yml not found or unreadable`);
+            }
+            let result = appmapConfig === null || appmapConfig === void 0 ? void 0 : appmapConfig.appmap_dir;
             if (!result) {
                 (0, action_utils_1.log)(action_utils_1.LogLevel.Warn, `config.appmap_dir not found in appmap.yml, using default value tmp/appmap`);
                 result = 'tmp/appmap';
@@ -506,7 +516,7 @@ const INSTALLER_OPTIONS = [
 ];
 function run(artifactStore, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const installer = new Installer_1.default(options.toolsUrl, options.toolsPath);
+        const installer = new Installer_1.default(options.toolsUrl, options.toolsPath, options.appmapConfig, options.installAppMapLibrary);
         for (const [propertyName, propertyValue] of Object.entries(options)) {
             if (!INSTALLER_OPTIONS.includes(propertyName))
                 continue;
