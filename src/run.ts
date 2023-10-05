@@ -20,7 +20,12 @@ export default async function run(
   artifactStore: ArtifactStore,
   options: CommandOptions
 ): Promise<CommandOutputs> {
-  const installer = new Installer(options.toolsUrl, options.toolsPath);
+  const installer = new Installer(
+    options.toolsUrl,
+    options.toolsPath,
+    options.appmapConfig,
+    options.installAppMapLibrary
+  );
 
   for (const [propertyName, propertyValue] of Object.entries(options)) {
     if (!INSTALLER_OPTIONS.includes(propertyName)) continue;

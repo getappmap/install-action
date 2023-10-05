@@ -1,6 +1,6 @@
 import {join} from 'path';
 import {verbose} from '@appland/action-utils';
-import {readFileSync} from 'fs';
+import {readFileSync, readdirSync, unlinkSync} from 'fs';
 import {mkdir, readFile, writeFile} from 'fs/promises';
 
 import Installer from '../src/Installer';
@@ -37,6 +37,7 @@ describe('install-action', () => {
     installer.projectType = 'dummy-project-type';
     installer.appmapToolsPath = join(__dirname, '..', 'tmp', 'appmap-tools');
     installer.appmapConfig = appmapConfig;
+    installer.shouldInstallLibrary = true;
   });
   afterEach(restoreFixtureFiles);
   afterEach(() => process.chdir(pwd));
@@ -75,5 +76,26 @@ describe('install-action', () => {
     const patch = await installer.buildPatchFile();
 
     expect(patch.contents).not.toMatch(/\+install --no-interactive/);
+  });
+
+  describe('when appmap.yml is not found', () => {
+    it('and install-appmap-library is false, it uses tmp/appmap as the appmap-dir', async () => {
+      unlinkSync('appmap.yml');
+      installer.shouldInstallLibrary = false;
+      const result = await installer.detectAppMapDir();
+      expect(result).toEqual('tmp/appmap');
+    });
+
+    it('and install-appmap-library is true, it throws an error', async () => {
+      unlinkSync('appmap.yml');
+      let exception: Error | undefined;
+      try {
+        await installer.detectAppMapDir();
+      } catch (e) {
+        exception = e as Error;
+      }
+      expect(exception).toBeDefined();
+      expect(exception?.message).toContain(`ENOENT: no such file or directory, open 'appmap.yml'`);
+    });
   });
 });
