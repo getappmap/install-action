@@ -9,7 +9,6 @@ import {downloadFile} from './downloadFile';
 import locateToolsRelease from './locateToolsRelease';
 
 export default class Installer {
-  public appmapConfig?: string;
   public appmapToolsPath: string;
   public projectType?: string;
   public installerName?: string;
@@ -17,7 +16,12 @@ export default class Installer {
   public githubToken?: string;
   public diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
 
-  constructor(public appmapToolsURL?: string, appmapToolsPath?: string) {
+  constructor(
+    public appmapToolsURL?: string,
+    appmapToolsPath?: string,
+    public appmapConfig?: string,
+    public shouldInstallLibrary?: boolean
+  ) {
     this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
   }
 
@@ -96,9 +100,17 @@ export default class Installer {
   }
 
   async detectAppMapDir(): Promise<string> {
-    const appmapConfigData = await readFile('appmap.yml', 'utf8');
-    const appmapConfig = load(appmapConfigData) as any;
-    let result = appmapConfig.appmap_dir;
+    let appmapConfig: any;
+    try {
+      const appmapConfigData = await readFile('appmap.yml', 'utf8');
+      appmapConfig = load(appmapConfigData);
+    } catch (e) {
+      const err = e as Error;
+      if (this.shouldInstallLibrary)
+        throw new Error(`${err.message}\nERROR: appmap.yml not found or unreadable`);
+    }
+
+    let result = appmapConfig?.appmap_dir;
     if (!result) {
       log(
         LogLevel.Warn,
