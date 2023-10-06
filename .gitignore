@@ -11,14 +11,5 @@ tmp
 test/fixture/appmap.yml
 patch
 
-
 # Ignore AppMap archives and working files
-/.appmap
-
-
-# AppMap artifacts
-/.appmap
-
-
-# AppMap artifacts
 /.appmap

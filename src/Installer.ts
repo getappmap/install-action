@@ -38,13 +38,12 @@ export default class Installer {
     }
 
     for (const entry of ignoreEntries) {
-      log(LogLevel.Info, `Adding ${entry.path} to .gitignore`);
-      if (!gitignore.includes(entry.matchString)) {
+      log(LogLevel.Debug, `Checking whether ${entry.path} should be added to .gitignore`);
+      if (!gitignore.find(line => line.includes(entry.matchString))) {
         log(LogLevel.Info, `Adding ${entry.path} to .gitignore`);
         gitignore.push('');
         gitignore.push(`# ${entry.comment}`);
         gitignore.push(entry.path);
-        gitignore.push('');
       }
 
       await writeFile('.gitignore', gitignore.join('\n'));
