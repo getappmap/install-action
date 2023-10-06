@@ -131,12 +131,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
-const js_yaml_1 = __nccwpck_require__(1917);
 const action_utils_1 = __nccwpck_require__(1259);
 const actionUtils = __importStar(__nccwpck_require__(1259));
+const loadAppMapConfig_1 = __importDefault(__nccwpck_require__(9845));
 class Installer {
     constructor(appmapToolsURL, appmapToolsPath, appmapConfig, shouldInstallLibrary) {
         this.appmapToolsURL = appmapToolsURL;
@@ -145,7 +148,7 @@ class Installer {
         this.diffPathSpec = `. :(exclude,top)vendor :(exclude,top)node_modules`;
         this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
     }
-    ignoreDotAppmap() {
+    gitignore(ignoreEntries) {
         return __awaiter(this, void 0, void 0, function* () {
             let gitignore;
             try {
@@ -155,12 +158,15 @@ class Installer {
                 (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Project has no .gitignore file. Initializing an empty one.`);
                 gitignore = [];
             }
-            if (!gitignore.includes('/.appmap')) {
-                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Adding .appmap to .gitignore`);
-                gitignore.push('');
-                gitignore.push('# Ignore AppMap archives and working files');
-                gitignore.push('/.appmap');
-                gitignore.push('');
+            for (const entry of ignoreEntries) {
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Adding ${entry.path} to .gitignore`);
+                if (!gitignore.includes(entry.matchString)) {
+                    (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Adding ${entry.path} to .gitignore`);
+                    gitignore.push('');
+                    gitignore.push(`# ${entry.comment}`);
+                    gitignore.push(entry.path);
+                    gitignore.push('');
+                }
                 yield (0, promises_1.writeFile)('.gitignore', gitignore.join('\n'));
             }
         });
@@ -218,16 +224,7 @@ class Installer {
     }
     detectAppMapDir() {
         return __awaiter(this, void 0, void 0, function* () {
-            let appmapConfig;
-            try {
-                const appmapConfigData = yield (0, promises_1.readFile)('appmap.yml', 'utf8');
-                appmapConfig = (0, js_yaml_1.load)(appmapConfigData);
-            }
-            catch (e) {
-                const err = e;
-                if (this.shouldInstallLibrary)
-                    throw new Error(`${err.message}\nERROR: appmap.yml not found or unreadable`);
-            }
+            const appmapConfig = yield (0, loadAppMapConfig_1.default)(this.shouldInstallLibrary);
             let result = appmapConfig === null || appmapConfig === void 0 ? void 0 : appmapConfig.appmap_dir;
             if (!result) {
                 (0, action_utils_1.log)(action_utils_1.LogLevel.Warn, `config.appmap_dir not found in appmap.yml, using default value tmp/appmap`);
@@ -376,6 +373,41 @@ if (require.main === require.cache[eval('__filename')]) {
 
 /***/ }),
 
+/***/ 9845:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const promises_1 = __nccwpck_require__(3292);
+const js_yaml_1 = __nccwpck_require__(1917);
+function loadAppMapConfig(mustFind = true) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const appmapConfigData = yield (0, promises_1.readFile)('appmap.yml', 'utf8');
+            return (0, js_yaml_1.load)(appmapConfigData);
+        }
+        catch (e) {
+            const err = e;
+            if (mustFind)
+                throw new Error(`${err.message}\nERROR: appmap.yml not found or unreadable`);
+        }
+    });
+}
+exports["default"] = loadAppMapConfig;
+
+
+/***/ }),
+
 /***/ 8082:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -395,6 +427,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const Installer_1 = __importDefault(__nccwpck_require__(3927));
+const loadAppMapConfig_1 = __importDefault(__nccwpck_require__(9845));
+const assert_1 = __importDefault(__nccwpck_require__(9491));
 const INSTALLER_OPTIONS = [
     'appmapConfig',
     'appmapToolsPath',
@@ -412,12 +446,36 @@ function run(artifactStore, options) {
             if (propertyValue)
                 installer[propertyName] = propertyValue;
         }
-        if (options.ignoreDotAppMap !== false)
-            yield installer.ignoreDotAppmap();
         if (options.installAppMapTools !== false)
             yield installer.installAppMapTools();
-        if (options.installAppMapLibrary !== false)
+        if (options.ignoreDotAppMap !== false)
+            yield installer.gitignore([
+                {
+                    path: '/.appmap',
+                    comment: 'AppMap artifacts',
+                    matchString: '.appmap',
+                },
+            ]);
+        if (options.installAppMapLibrary !== false) {
             yield installer.installAppMapLibrary();
+            const gitignores = [
+                {
+                    path: '/node_modules',
+                    comment: 'Node modules',
+                    matchString: 'node_modules',
+                },
+            ];
+            const appmapConfig = yield (0, loadAppMapConfig_1.default)(true);
+            (0, assert_1.default)(appmapConfig);
+            if (appmapConfig.language === 'ruby') {
+                gitignores.push({
+                    path: '/vendor',
+                    comment: 'Vendored Ruby gems',
+                    matchString: 'vendor',
+                });
+            }
+            yield installer.gitignore(gitignores);
+        }
         if (options.expectedAppMapDir)
             yield installer.verifyAppMapDir(options.expectedAppMapDir);
         const outputs = { appmapDir: yield installer.detectAppMapDir() };
