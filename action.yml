@@ -54,6 +54,7 @@ inputs:
       configured appmap_dir matches the expected value. If the value does not match, the action will fail.
   verbose:
     description: Enable verbose logging.
+    default: false
 outputs:
   patch:
     description: Patch file of changes made by the installer.
