@@ -30,19 +30,19 @@ inputs:
   ignore-dot-appmap:
     description: |
       Add the .appmap directory to .gitignore, if it's not already present.
-    default: 'true'
+    default: true
   install-appmap-tools:
     description: |
       Install the AppMap command-line tools.
-    default: 'true'
+    default: true
   install-appmap-library:
     description: |
       Install the and configure the AppMap language library.
-    default: 'true'
+    default: true
   build-patch-file:
     description: |
       Create a patch file of changes made by the installer.
-    default: 'true'
+    default: true
   diff-path-spec:
     description: |
       Path specification to use when creating the patch file. If the patch file includes files that you don't want
