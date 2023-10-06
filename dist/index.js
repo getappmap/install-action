@@ -159,13 +159,12 @@ class Installer {
                 gitignore = [];
             }
             for (const entry of ignoreEntries) {
-                (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Adding ${entry.path} to .gitignore`);
-                if (!gitignore.includes(entry.matchString)) {
+                (0, action_utils_1.log)(action_utils_1.LogLevel.Debug, `Checking whether ${entry.path} should be added to .gitignore`);
+                if (!gitignore.find(line => line.includes(entry.matchString))) {
                     (0, action_utils_1.log)(action_utils_1.LogLevel.Info, `Adding ${entry.path} to .gitignore`);
                     gitignore.push('');
                     gitignore.push(`# ${entry.comment}`);
                     gitignore.push(entry.path);
-                    gitignore.push('');
                 }
                 yield (0, promises_1.writeFile)('.gitignore', gitignore.join('\n'));
             }
