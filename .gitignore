@@ -14,3 +14,7 @@ patch
 
 # Ignore AppMap archives and working files
 /.appmap
+
+
+# AppMap artifacts
+/.appmap
