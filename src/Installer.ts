@@ -1,8 +1,15 @@
 import {mkdir, readFile, writeFile} from 'fs/promises';
 import {join} from 'path';
-import {load} from 'js-yaml';
 import {executeCommand, log, LogLevel} from '@appland/action-utils';
 import * as actionUtils from '@appland/action-utils';
+
+import loadAppMapConfig from './loadAppMapConfig';
+
+export interface IgnoreEntry {
+  path: string;
+  comment: string;
+  matchString: string;
+}
 
 export default class Installer {
   public appmapToolsPath: string;
@@ -21,7 +28,7 @@ export default class Installer {
     this.appmapToolsPath = appmapToolsPath || '/usr/local/bin/appmap';
   }
 
-  async ignoreDotAppmap() {
+  async gitignore(ignoreEntries: IgnoreEntry[]) {
     let gitignore: string[];
     try {
       gitignore = (await readFile('.gitignore', 'utf8')).split('\n');
@@ -29,12 +36,17 @@ export default class Installer {
       log(LogLevel.Info, `Project has no .gitignore file. Initializing an empty one.`);
       gitignore = [];
     }
-    if (!gitignore.includes('/.appmap')) {
-      log(LogLevel.Info, `Adding .appmap to .gitignore`);
-      gitignore.push('');
-      gitignore.push('# Ignore AppMap archives and working files');
-      gitignore.push('/.appmap');
-      gitignore.push('');
+
+    for (const entry of ignoreEntries) {
+      log(LogLevel.Info, `Adding ${entry.path} to .gitignore`);
+      if (!gitignore.includes(entry.matchString)) {
+        log(LogLevel.Info, `Adding ${entry.path} to .gitignore`);
+        gitignore.push('');
+        gitignore.push(`# ${entry.comment}`);
+        gitignore.push(entry.path);
+        gitignore.push('');
+      }
+
       await writeFile('.gitignore', gitignore.join('\n'));
     }
   }
@@ -86,16 +98,7 @@ export default class Installer {
   }
 
   async detectAppMapDir(): Promise<string> {
-    let appmapConfig: any;
-    try {
-      const appmapConfigData = await readFile('appmap.yml', 'utf8');
-      appmapConfig = load(appmapConfigData);
-    } catch (e) {
-      const err = e as Error;
-      if (this.shouldInstallLibrary)
-        throw new Error(`${err.message}\nERROR: appmap.yml not found or unreadable`);
-    }
-
+    const appmapConfig = await loadAppMapConfig(this.shouldInstallLibrary);
     let result = appmapConfig?.appmap_dir;
     if (!result) {
       log(
