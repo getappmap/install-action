@@ -26,6 +26,7 @@ inputs:
     description: |
       The GitHub token to use with the GitHub API to enumerate AppMap Tools releases.
       Most commonly, you'll use `secrets.GITHUB_TOKEN`, which is automatically provided by GitHub.
+    default: ${{ github.token }}
   ignore-dot-appmap:
     description: |
       Add the .appmap directory to .gitignore, if it's not already present.

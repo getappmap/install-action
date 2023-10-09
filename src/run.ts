@@ -1,6 +1,8 @@
-import Installer from './Installer';
+import Installer, {IgnoreEntry} from './Installer';
 import {CommandOptions} from './CommandOptions';
 import ArtifactStore from './ArtifactStore';
+import loadAppMapConfig from './loadAppMapConfig';
+import assert from 'assert';
 
 const INSTALLER_OPTIONS = [
   'appmapConfig',
@@ -33,9 +35,39 @@ export default async function run(
     if (propertyValue) (installer as any)[propertyName] = propertyValue;
   }
 
-  if (options.ignoreDotAppMap !== false) await installer.ignoreDotAppmap();
   if (options.installAppMapTools !== false) await installer.installAppMapTools();
-  if (options.installAppMapLibrary !== false) await installer.installAppMapLibrary();
+
+  if (options.ignoreDotAppMap !== false)
+    await installer.gitignore([
+      {
+        path: '/.appmap',
+        comment: 'AppMap artifacts',
+        matchString: '.appmap',
+      },
+    ]);
+
+  if (options.installAppMapLibrary !== false) {
+    await installer.installAppMapLibrary();
+
+    const gitignores: IgnoreEntry[] = [
+      {
+        path: '/node_modules',
+        comment: 'Node modules',
+        matchString: 'node_modules',
+      },
+    ];
+
+    const appmapConfig = await loadAppMapConfig(true);
+    assert(appmapConfig);
+    if (appmapConfig.language === 'ruby') {
+      gitignores.push({
+        path: '/vendor',
+        comment: 'Vendored Ruby gems',
+        matchString: 'vendor',
+      });
+    }
+    await installer.gitignore(gitignores);
+  }
 
   if (options.expectedAppMapDir) await installer.verifyAppMapDir(options.expectedAppMapDir);
 
