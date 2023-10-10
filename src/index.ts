@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import {ActionLogger, setLogger, verbose} from '@appland/action-utils';
+import {ActionLogger, LogLevel, setLogger, verbose} from '@appland/action-utils';
 import {ArgumentParser} from 'argparse';
 import assert from 'assert';
 
@@ -7,6 +7,7 @@ import Installer from './Installer';
 import run from './run';
 import {GitHubArtifactStore} from './GitHubArtifactStore';
 import {DirectoryArtifactStore} from './DirectoryArtifactStore';
+import {log} from 'console';
 
 const Options: Record<string, keyof Installer> = {
   'appmap-config': 'appmapConfig',
@@ -18,6 +19,12 @@ const Options: Record<string, keyof Installer> = {
 export async function runInGitHub(): Promise<void> {
   verbose(core.getBooleanInput('verbose'));
   setLogger(new ActionLogger());
+
+  const directory = core.getInput('directory');
+  if (directory) {
+    log(LogLevel.Info, `Changing working directory: ${directory}`);
+    process.chdir(directory);
+  }
 
   const outputs = await run(new GitHubArtifactStore(), {
     appmapConfig: core.getInput('appmap-config'),

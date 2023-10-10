@@ -6,6 +6,8 @@ branding:
   icon: download
   color: purple
 inputs:
+  directory:
+    description: Command working directory.
   appmap-config:
     description: appmap.yml configuration contents.
   project-type:

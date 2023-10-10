@@ -287,6 +287,7 @@ const assert_1 = __importDefault(__nccwpck_require__(9491));
 const run_1 = __importDefault(__nccwpck_require__(8082));
 const GitHubArtifactStore_1 = __nccwpck_require__(4389);
 const DirectoryArtifactStore_1 = __nccwpck_require__(6227);
+const console_1 = __nccwpck_require__(6206);
 const Options = {
     'appmap-config': 'appmapConfig',
     'project-type': 'projectType',
@@ -297,6 +298,11 @@ function runInGitHub() {
     return __awaiter(this, void 0, void 0, function* () {
         (0, action_utils_1.verbose)(core.getBooleanInput('verbose'));
         (0, action_utils_1.setLogger)(new action_utils_1.ActionLogger());
+        const directory = core.getInput('directory');
+        if (directory) {
+            (0, console_1.log)(action_utils_1.LogLevel.Info, `Changing working directory: ${directory}`);
+            process.chdir(directory);
+        }
         const outputs = yield (0, run_1.default)(new GitHubArtifactStore_1.GitHubArtifactStore(), {
             appmapConfig: core.getInput('appmap-config'),
             projectType: core.getInput('project-type'),
@@ -31760,6 +31766,14 @@ module.exports = require("buffer");
 
 "use strict";
 module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 6206:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("console");
 
 /***/ }),
 
