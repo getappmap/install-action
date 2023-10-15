@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache/save@v3
         if: always()
         with:
-          path: ${{ steps.appmap-install.outputs.appmap-dir }}
+          path: ./tmp/appmap
           key: appmaps-${{ github.sha }}-${{ github.run_attempt }}
 
       - name: Commit changes
