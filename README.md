@@ -32,16 +32,20 @@ Add a step like this to your workflow:
 - name: Install AppMap tools
   uses: getappmap/install-action@v1
   with:
-    # Choose the type of your project here: e.g. bundler, maven, gradle, pip, pipenv, poetry, yarn, npm, etc.
-    # Consult https://appmap.io/docs/add-appmap-to-a-project.html for more information.
+    # Choose the type of your project here: e.g. bundler, maven, gradle, pip, 
+    # pipenv, poetry, yarn, npm, etc.
+    # Consult https://appmap.io/docs/add-appmap-to-a-project.html for more 
+    # information.
     project-type: 'pip'
 
-    # Command working directory. Change this if your project lives in a subdirectory or for monorepo / multi-project support
+    # Command working directory. Change this if your project lives in a 
+    # subdirectory or for monorepo / multi-project support
     # Default: '.'
     directory: /path/to/code
     
     # Contents of appmap.yml configuration in a multi-line yaml file. 
-    # Default: Automatically generated appmap.yml content identified based on project type (aka build framework)
+    # Default: Automatically generated appmap.yml content identified based on 
+    # project type (aka build framework)
     appmap-config: |
       name: project-name
       packages:
@@ -53,11 +57,14 @@ Add a step like this to your workflow:
     # Default: Automatically identified based on project language
     build-file: requirements-dev.txt
     
-    # URL to the AppMap tools. By default, the latest version will be downloaded and installed.
-    # Default: Latest release downloaded from https://github.com/getappmap/appmap-js/releases/
+    # URL to the AppMap tools. By default, the latest version will be downloaded 
+    # and installed.
+    # Default: Latest release downloaded from:
+    # https://github.com/getappmap/appmap-js/releases/
     tools-url: https://github.com/getappmap/appmap-js/releases/download/%40appland%2Fappmap-v3.104.0/appmap-linux-x64
 
-    # The GitHub token to use with the GitHub API to enumerate AppMap Tools releases.
+    # The GitHub token to use with the GitHub API to enumerate AppMap Tools 
+    # releases.
     # Default: `${{ github.token }}`
     github-token: secrets.CUSTOM_GITHUB_TOKEN
 
@@ -69,15 +76,20 @@ Add a step like this to your workflow:
     # Default: true
     install-appmap-tools: false
 
-    # Install the and configure the AppMap language library. This can be set to false if your project already has AppMap libraries included in your project build dependency file.
+    # Install the and configure the AppMap language library. This can be set to 
+    # false if your project already has AppMap libraries included in your project 
+    # build dependency file.
     # Default: true
     install-appmap-library: false
 
-    # Create a patch file of changes made by the installer. This patch file will be stored as a build artifact and made available for download.
+    # Create a patch file of changes made by the installer. This patch file will 
+    # be stored as a build artifact and made available for download.
     # Default: true
     build-patch-file: false
 
-    # Path specification to use when creating the patch file. If the patch file includes files that you don't want to commit, you can use this option to exclude them.
+    # Path specification to use when creating the patch file. If the patch file 
+    # includes files that you don't want to commit, you can use this option to 
+    # exclude them.
     # Default: ". ':(exclude,top)vendor' ':(exclude,top)node_modules'"
     diff-path-spec: "':(exclude,top)virtualenv'"
 
