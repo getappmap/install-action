@@ -1,8 +1,8 @@
 # getappmap/install-appmap <!-- omit in toc -->
 
-To get started with AppMap in GitHub actions, you need to start by installing the [AppMap App on the official GitHub Marketplace](https://github.com/marketplace/get-appmap)
+> To get started with AppMap in GitHub actions, you need to start by installing the [AppMap App on the official GitHub Marketplace](https://github.com/marketplace/get-appmap)
 
-To see a step-by-step example of how to install this action into your software project, [review the official AppMap Documentation](http://appmap.io/docs/analysis/in-github-actions).
+> To see a step-by-step example of how to install this action into your software project, [review the official AppMap Documentation](http://appmap.io/docs/analysis/in-github-actions).
 
 This is a GitHub action to install and configure AppMap. It will do the following things:
 
@@ -15,6 +15,7 @@ This is a GitHub action to install and configure AppMap. It will do the followin
 
 - [Prerequisites](#prerequisites)
 - [Inputs](#inputs)
+- [Outputs](#outputs)
 - [Examples](#examples)
 - [Development](#development)
 
@@ -35,22 +36,23 @@ Add a step like this to your workflow:
     # Consult https://appmap.io/docs/add-appmap-to-a-project.html for more information.
     project-type: 'pip'
 
-    # Command working directory
+    # Command working directory. Change this if your project lives in a subdirectory or for monorepo / multi-project support
     # Default: '.'
     directory: /path/to/code
     
-    # Contents of appmap.yml configuration.
-    # Default: Automatically generated appmap.yml file
-    appmap-config: custom-appmap.yml
+    # Contents of appmap.yml configuration in a multi-line yaml file. 
+    # Default: Automatically generated appmap.yml content identified based on project type (aka build framework)
+    appmap-config: |
+      name: project-name
+        packages:
+          - path: src
+        language: python
+        appmap_dir: custom/appmap/dir
 
-    # Build file to be configured, in case of ambiguity. This is an advanced option.
+    # Build file to be configured, in case of ambiguity.
     # Default: Automatically identified based on project language
-    build-file: requirements.txt
+    build-file: requirements-dev.txt
     
-    # Installer name to be used, in case of ambiguity. This is an advanced option.
-    # Default: appmap
-    installer-name: custom-appmap-cmd
-
     # URL to the AppMap tools. By default, the latest version will be downloaded and installed.
     # Default: Latest release downloaded from https://github.com/getappmap/appmap-js/releases/
     tools-url: https://github.com/getappmap/appmap-js/releases/download/%40appland%2Fappmap-v3.104.0/appmap-linux-x64
@@ -78,10 +80,6 @@ Add a step like this to your workflow:
     # Path specification to use when creating the patch file. If the patch file includes files that you don't want to commit, you can use this option to exclude them.
     # Default: ". ':(exclude,top)vendor' ':(exclude,top)node_modules'"
     diff-path-spec: "':(exclude,top)virtualenv'"
-
-    # Expected value of the appmap_dir in appmap.yml. If this input is provided, the action will verify that the configured appmap_dir matches the expected value. If the value does not match, the action will fail.
-    # Default: tmp/appmap
-    expected-appmap-dir: other/appmap/dir
 
     # Enable verbose logging.
     # Default: false
