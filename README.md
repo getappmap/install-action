@@ -125,6 +125,8 @@ If your project alrady has the AppMap software libraries and configuration files
     install-appmap-library: false
 ```
 
+For more examples, refer to the [AppMap example projects](https://appmap.io/docs/setup-appmap-in-ci/example-projects.html)
+
 ## Development
 
 ```
