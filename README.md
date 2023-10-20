@@ -41,7 +41,7 @@ Add a step like this to your workflow:
     
     # Contents of appmap.yml configuration.
     # Default: Automatically generated appmap.yml file
-    appmap-config:
+    appmap-config: custom-appmap.yml
 
     # Build file to be configured, in case of ambiguity. This is an advanced option.
     # Default: Automatically identified based on project language
