@@ -1,4 +1,6 @@
-# getappmap/install-appmap
+# getappmap/install-appmap <!-- omit in toc -->
+
+To get started with AppMap in GitHub actions, you need to start by installing the [AppMap GitHub App on the official GitHub Marketplace](https://github.com/marketplace/get-appmap)
 
 To see a step-by-step example of how to install this action into your software project, [review the official AppMap Documentation](http://appmap.io/docs/analysis/in-github-actions).
 
@@ -9,22 +11,91 @@ This is a GitHub action to install and configure AppMap. It will do the followin
   JS + yarn, etc).
 - (Optional) Configure the AppMap library by creating a default _appmap.yml_.
 
-AppMap configuration can also be explicitly provided via `appmap-config` parameter.
+## Table of contents <!-- omit in toc -->
 
-On completion, a patch file of the changes applied to the repo is attached as a GitHub artifact. You
-can also add the following step to your workflow to commit the changes automatically:
-
-```
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v9
-```
+- [Prerequisites](#prerequisites)
+- [Inputs](#inputs)
+- [Examples](#examples)
+- [Development](#development)
 
 ## Prerequisites
 
 Before running this action, ensure that the programming language and package manager used by your
-project are installed and available.
+project are installed and available.  This action **needs** to run **before** your tests execute inside your GitHub Action workflow file. 
 
-## Usage
+## Inputs
+
+Add a step like this to your workflow:
+
+```yaml
+- name: Install AppMap tools
+  uses: getappmap/install-action@v1
+  with:
+    # Choose the type of your project here: e.g. bundler, maven, gradle, pip, pipenv, poetry, yarn, npm, etc.
+    # Consult https://appmap.io/docs/add-appmap-to-a-project.html for more information.
+    project-type: 'pip'
+
+    # Command working directory
+    # Default: '.'
+    directory: /path/to/code
+    
+    # Contents of appmap.yml configuration.
+    # Default: Automatically generated appmap.yml file
+    appmap-config:
+
+    # Build file to be configured, in case of ambiguity. This is an advanced option.
+    # Default: Automatically identified based on project language
+    build-file: requirements.txt
+    
+    # Installer name to be used, in case of ambiguity. This is an advanced option.
+    # Default: appmap
+    installer-name: custom-appmap-cmd
+
+    # URL to the AppMap tools. By default, the latest version will be downloaded and installed.
+    # Default: Latest release downloaded from https://github.com/getappmap/appmap-js/releases/
+    tools-url: https://github.com/getappmap/appmap-js/releases/download/%40appland%2Fappmap-v3.104.0/appmap-linux-x64
+
+    # The GitHub token to use with the GitHub API to enumerate AppMap Tools releases.
+    # Default: `${{ github.token }}`
+    github-token: secrets.CUSTOM_GITHUB_TOKEN
+
+    # Add the .appmap directory to .gitignore, if it's not already present.
+    # Default: true
+    ignore-dot-appmap: false
+
+    # Install the AppMap command-line tools.
+    # Default: true
+    install-appmap-tools: false
+
+    # Install the and configure the AppMap language library. This can be set to false if your project already has AppMap libraries included in your project build dependency file.
+    # Default: true
+    install-appmap-library: false
+
+    # Create a patch file of changes made by the installer. This patch file will be stored as a build artifact and made available for download.
+    # Default: true
+    build-patch-file: false
+
+    # Path specification to use when creating the patch file. If the patch file includes files that you don't want to commit, you can use this option to exclude them.
+    # Default: ". ':(exclude,top)vendor' ':(exclude,top)node_modules'"
+    diff-path-spec: "':(exclude,top)virtualenv'"
+
+    # Expected value of the appmap_dir in appmap.yml. If this input is provided, the action will verify that the configured appmap_dir matches the expected value. If the value does not match, the action will fail.
+    # Default: tmp/appmap
+    expected-appmap-dir: other/appmap/dir
+
+    # Enable verbose logging.
+    # Default: false
+    verbose: true
+```
+
+## Outputs
+
+The action provides these outputs:
+
+- `patch`: Patch file of changes made by the installer.
+- `appmap-dir`: Directory containing recorded AppMaps; this information can also be obtained from the appmap_dir entry in the `appmap.yml` configuration file.
+
+## Examples
 
 Set the `project-type` to ensure the AppMap library is installed via the correct package manager.
 
@@ -32,14 +103,10 @@ Set the `project-type` to ensure the AppMap library is installed via the correct
 - name: Install AppMap tools
   uses: getappmap/install-action@v1
   with:
-    project-type: bundler # Choose the type of your project here:
-                        # bundler, maven, gradle, pip, pipenv, poetry,
-                        # yarn, npm, etc.
+    project-type: bundler
 ```
 
-
 If your project alrady has the AppMap software libraries and configuration files installed, use `install-appmap-library: false` to skip the install of the libraries and only install the CLI tools which are required for later steps:
-
 
 ```
 - name: Install AppMap tools
