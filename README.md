@@ -1,6 +1,6 @@
 # getappmap/install-appmap <!-- omit in toc -->
 
-To get started with AppMap in GitHub actions, you need to start by installing the [AppMap GitHub App on the official GitHub Marketplace](https://github.com/marketplace/get-appmap)
+To get started with AppMap in GitHub actions, you need to start by installing the [AppMap App on the official GitHub Marketplace](https://github.com/marketplace/get-appmap)
 
 To see a step-by-step example of how to install this action into your software project, [review the official AppMap Documentation](http://appmap.io/docs/analysis/in-github-actions).
 
