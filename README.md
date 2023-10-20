@@ -1,28 +1,37 @@
 # getappmap/install-appmap <!-- omit in toc -->
 
 > To get started with AppMap in GitHub actions, you need to start by installing the [AppMap App on the official GitHub Marketplace](https://github.com/marketplace/get-appmap)
-
+> 
 > To see a step-by-step example of how to install this action into your software project, [review the official AppMap Documentation](http://appmap.io/docs/analysis/in-github-actions).
 
-This is a GitHub action to install and configure AppMap. It will do the following things:
+This is a GitHub action to install and configure AppMap. By default, it will do the following three things:
 
-- Install the AppMap tools (CLI)
-- (Optional) Install the AppMap library for the language and build system (e.g. Java + Maven, Ruby + Bundler,
+1. Install the AppMap tools (CLI)
+2. Install the AppMap language library for the language and build system (e.g. Java + Maven, Ruby + Bundler,
   JS + yarn, etc).
-- (Optional) Configure the AppMap library by creating a default _appmap.yml_.
+3. Configure the AppMap integration with your project by creating _appmap.yml_.
+
+Once a workflow run has completed successfully with `install-action` enabled, you have two choices:
+
+1) If no subsequent workflow steps require the AppMap CLI, you may remove the `install-action` step from your workflow.
+2) If any subsequent workflow step does require the AppMap CLI, leave the `install-action` in place but set
+   `install-appmap-library: false`.
 
 ## Table of contents <!-- omit in toc -->
 
-- [Prerequisites](#prerequisites)
+- [Requirements](#requirements)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
 - [Examples](#examples)
 - [Development](#development)
 
-## Prerequisites
+## Requirements
 
-Before running this action, ensure that the programming language and package manager used by your
-project are installed and available.  This action **needs** to run **before** your tests execute inside your GitHub Action workflow file. 
+You must make sure that all of the following conditions are satisfied:
+
+1. `install-action` must run **after** the workflow steps that install your programming language and package manager.
+2. `install-action` must run **before** the workflow step that runs your test cases. 
+3. The `project-type` input is **required** unless `install-appmap-library` is `false`.
 
 ## Inputs
 
@@ -38,10 +47,12 @@ Add a step like this to your workflow:
     # information.
     project-type: 'pip'
 
-    # Command working directory. Change this if your project lives in a 
-    # subdirectory or for monorepo / multi-project support
+    # Command working directory. Use this option this to install AppMap to a 
+    # subdirectory of a monorepo / multi-folder project. When this input is specified,
+    # AppMaps that project will be written to the directory `$directory/tmp/appmap`.
+    # Be aware of this in any subsequent steps.
     # Default: '.'
-    directory: /path/to/code
+    directory: ./projects/backend
     
     # Contents of appmap.yml configuration in a multi-line yaml file. 
     # Default: Automatically generated appmap.yml content identified based on 
@@ -51,7 +62,7 @@ Add a step like this to your workflow:
       packages:
         - path: src
       language: python
-      appmap_dir: custom/appmap/dir
+      appmap_dir: tmp/appmap
 
     # Build file to be configured, in case of ambiguity.
     # Default: Automatically identified based on project language
@@ -93,7 +104,8 @@ Add a step like this to your workflow:
     # Default: ". ':(exclude,top)vendor' ':(exclude,top)node_modules'"
     diff-path-spec: "':(exclude,top)virtualenv'"
 
-    # Enable verbose logging.
+    # Enable verbose logging of CLI subcommands. You can use the standard GitHub
+    # Action log level option to control verbosity of this Action itself.
     # Default: false
     verbose: true
 ```
@@ -107,16 +119,24 @@ The action provides these outputs:
 
 ## Examples
 
-Set the `project-type` to ensure the AppMap library is installed via the correct package manager.
+Set the `project-type` to ensure the AppMap library is installed via the correct package manager. Commit the installation changes to your project.
 
 ```
+- uses: actions/checkout@v4
+  with:
+    ref: ${{ github.event.pull_request.head.ref }}
+
+... Install programming language and package manager
+
 - name: Install AppMap tools
   uses: getappmap/install-action@v1
   with:
     project-type: bundler
+- name: Commit changes
+  uses: EndBug/add-and-commit@v9
 ```
 
-If your project alrady has the AppMap software libraries and configuration files installed, use `install-appmap-library: false` to skip the install of the libraries and only install the CLI tools which are required for later steps:
+If your project is already configured for AppMap, use `install-appmap-library: false` to skip the install of the libraries and only install the CLI tools which are required for later steps:
 
 ```
 - name: Install AppMap tools
