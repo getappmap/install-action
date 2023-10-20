@@ -44,10 +44,10 @@ Add a step like this to your workflow:
     # Default: Automatically generated appmap.yml content identified based on project type (aka build framework)
     appmap-config: |
       name: project-name
-        packages:
-          - path: src
-        language: python
-        appmap_dir: custom/appmap/dir
+      packages:
+        - path: src
+      language: python
+      appmap_dir: custom/appmap/dir
 
     # Build file to be configured, in case of ambiguity.
     # Default: Automatically identified based on project language
