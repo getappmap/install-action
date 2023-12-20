@@ -45,28 +45,28 @@ describe('install-action', () => {
   afterEach(() => process.chdir(pwd));
 
 
-it('installs AppMap tools', async () => {
-  const spy = jest.spyOn(actionUtils, 'installAppMapTools');
+  it('installs AppMap tools', async () => {
+    const spy = jest.spyOn(actionUtils, 'installAppMapTools');
 
-  await installer.installAppMapTools();
-  await installer.installAppMapLibrary();
-  const patch = await installer.buildPatchFile();
+    await installer.installAppMapTools();
+    await installer.installAppMapLibrary();
+    const patch = await installer.buildPatchFile();
 
-  expect((await readFile('install.log', 'utf8')).trim()).toEqual(
-    'install --no-interactive --no-overwrite-appmap-config --project-type dummy-project-type'
-  );
-  expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
-  expect(patch.contents).toContain(`-# AppMap config will be written here`);
+    expect((await readFile('install.log', 'utf8')).trim()).toEqual(
+      'install --no-interactive --no-overwrite-appmap-config --project-type dummy-project-type'
+    );
+    expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
+    expect(patch.contents).toContain(`-# AppMap config will be written here`);
 
-  expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
+    expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
 
-  expect(spy).toHaveBeenCalledWith(
-    expect.anything(),
-    expect.objectContaining({ githubToken: installer.githubToken })
-  );
+    expect(spy).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ githubToken: installer.githubToken })
+    );
 
-  spy.mockRestore();
-});
+    spy.mockRestore();
+  });
 
 
   it('verifies appmap_dir', async () => {
