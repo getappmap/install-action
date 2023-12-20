@@ -1,5 +1,5 @@
 import {join} from 'path';
-import {verbose} from '@appland/action-utils';
+import * as actionUtils from '@appland/action-utils';
 import {readFileSync, readdirSync, unlinkSync} from 'fs';
 import {mkdir, readFile, writeFile} from 'fs/promises';
 
@@ -11,6 +11,7 @@ const appmapToolsURL = ['file://', join(__dirname, 'fixture', 'installer')].join
 const appmapConfig = `name: install-appmap-action-test
 appmap_dir: tmp/appmap
 `;
+const githubToken = 'your-github-token';
 const FixtureFiles = ['install.log', 'appmap.yml'].reduce(
   (memo, fileName) => (
     (memo[fileName] = readFileSync(join(__dirname, 'fixture', 'app', fileName), 'utf8')), memo
@@ -25,7 +26,7 @@ async function restoreFixtureFiles() {
   );
 }
 
-if (process.env.VERBOSE) verbose(true);
+if (process.env.VERBOSE) actionUtils.verbose(true);
 
 describe('install-action', () => {
   let installer: Installer;
@@ -38,11 +39,13 @@ describe('install-action', () => {
     installer.appmapToolsPath = join(__dirname, '..', 'tmp', 'appmap-tools');
     installer.appmapConfig = appmapConfig;
     installer.shouldInstallLibrary = true;
+    installer.githubToken = githubToken;
   });
   afterEach(restoreFixtureFiles);
   afterEach(() => process.chdir(pwd));
 
   it('installs AppMap tools', async () => {
+    const mockInstallAppMapTools = jest.spyOn(actionUtils, 'installAppMapTools').mockImplementation(() => Promise.resolve());
     await installer.installAppMapTools();
     await installer.installAppMapLibrary();
     const patch = await installer.buildPatchFile();
@@ -54,6 +57,12 @@ describe('install-action', () => {
     expect(patch.contents).toContain(`-# AppMap config will be written here`);
 
     expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
+
+    expect(mockInstallAppMapTools).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ githubToken })
+    );
+    mockInstallAppMapTools.mockRestore();
   });
 
   it('verifies appmap_dir', async () => {
