@@ -54,7 +54,10 @@ export default class Installer {
     // If you run this github action, the tools will always be installed to the requested location,
     // even if there is a previous version installed. This is a way to force a known version of the tools package.
     // Other AppMap actions will use the installed tools if they already exist, and won't re-install.
-    const options: actionUtils.InstallAppMapToolsOptions = {force: true};
+    const options: actionUtils.InstallAppMapToolsOptions = {
+      force: true,
+      githubToken: this.githubToken
+    };
     if (this.appmapToolsURL) options.toolsURL = this.appmapToolsURL;
     await actionUtils.installAppMapTools(this.appmapToolsPath, options);
   }
