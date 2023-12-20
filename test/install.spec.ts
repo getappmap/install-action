@@ -44,26 +44,30 @@ describe('install-action', () => {
   afterEach(restoreFixtureFiles);
   afterEach(() => process.chdir(pwd));
 
-  it('installs AppMap tools', async () => {
-    const mockInstallAppMapTools = jest.spyOn(actionUtils, 'installAppMapTools').mockImplementation(() => Promise.resolve());
-    await installer.installAppMapTools();
-    await installer.installAppMapLibrary();
-    const patch = await installer.buildPatchFile();
 
-    expect((await readFile('install.log', 'utf8')).trim()).toEqual(
-      'install --no-interactive --no-overwrite-appmap-config --project-type dummy-project-type'
-    );
-    expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
-    expect(patch.contents).toContain(`-# AppMap config will be written here`);
+it('installs AppMap tools', async () => {
+  const spy = jest.spyOn(actionUtils, 'installAppMapTools');
 
-    expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
+  await installer.installAppMapTools();
+  await installer.installAppMapLibrary();
+  const patch = await installer.buildPatchFile();
 
-    expect(mockInstallAppMapTools).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ githubToken })
-    );
-    mockInstallAppMapTools.mockRestore();
-  });
+  expect((await readFile('install.log', 'utf8')).trim()).toEqual(
+    'install --no-interactive --no-overwrite-appmap-config --project-type dummy-project-type'
+  );
+  expect(await readFile('appmap.yml', 'utf8')).toEqual(appmapConfig);
+  expect(patch.contents).toContain(`-# AppMap config will be written here`);
+
+  expect(await installer.detectAppMapDir()).toEqual('tmp/appmap');
+
+  expect(spy).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({ githubToken: installer.githubToken })
+  );
+
+  spy.mockRestore();
+});
+
 
   it('verifies appmap_dir', async () => {
     await installer.installAppMapLibrary();
